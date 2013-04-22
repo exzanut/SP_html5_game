@@ -2,7 +2,7 @@ enchant();
 
 window.onload = function () {
     var game = new Game(320, 700);
-    game.fps = 50;
+    game.fps = 30;
     game.scale = 1;
 
     game.preload('www/picture/spaceship.png');
