@@ -1,0 +1,56 @@
+var Shoot = enchant.Class.create(enchant.Sprite, {
+    initialize: function (x, y, direction,moveSpeed) {
+        enchant.Sprite.call(this, 16, 16);
+        var game = Game.instance;
+        this.x = x;
+        this.y = y;
+        
+        this.direction = direction;
+        this.moveSpeed=moveSpeed;
+
+        this.addEventListener('enterframe', function () {
+            this.x += this.moveSpeed * Math.cos(this.direction);
+            this.y -= this.moveSpeed * Math.sin(this.direction);
+            if(this.y > game.height || this.x > game.width || this.x < -this.width || this.y < -this.height) {
+                this.remove();
+            }
+        });
+        Game.instance.scGame.addChild(this);
+        
+    },
+    remove: function () {
+        Game.instance.scGame.removeChild(this);
+        delete this;
+    }
+});
+
+var EnemyShoot = enchant.Class.create(Shoot, {
+    initialize: function (x, y,direction) {
+        var moveSpeed = 10;
+        Shoot.call(this, x, y,direction,moveSpeed);
+        this.image = Game.instance.assets['www/picture/enemy.png'];
+        this.frame = 60;
+        
+        
+       /* this.addEventListener('enterframe', function () {
+            if(player.within(this, 8)) {
+                game.end(game.score, "SCORE: " + game.score)
+            }
+        });*/
+    }
+});
+
+var PlayerShoot = enchant.Class.create(Shoot, {
+
+    initialize: function (x, y) {
+        var game = Game.instance;
+        var moveSpeed = 20;
+        Shoot.call(this, x, y,Math.PI/2,moveSpeed);
+        
+        this.image = game.assets['www/picture/ball.png'];
+        this.sound = game.assets['www/sound/M4A1_Single.wav'];
+        this.sound.clone().play();
+        //this.damage = 1;
+        this.frame = 7;
+    }
+});

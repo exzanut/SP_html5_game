@@ -1,13 +1,14 @@
 enchant();
 
 window.onload = function () {
-    var game = new Game(320, 700);
+    var game = new Game(480, 640);
     game.fps = 30;
     game.scale = 1;
 
     //image
     game.preload('www/picture/spaceship.png');
     game.preload('www/picture/ball.png');
+    game.preload('www/picture/enemy.png');
     game.preload('www/picture/resume.png');
     game.preload('www/picture/play.png');
     game.preload('www/picture/shop.png');
@@ -163,6 +164,8 @@ var SceneGame = Class.create(Scene, {
         var game = Game.instance;
         var player = new Player(100,600);
         this.addChild(player);
+        var enemySpawner = new EnemySpawner();
+        this.addChild(enemySpawner);
 
         this.addEventListener('touchend', function () {
 
@@ -210,40 +213,10 @@ var Player = enchant.Class.create(enchant.Sprite, {
             }
 
             if(game.frame%5 == 0){
-                var shoot = new Shoot(this.x+8, this.y-16);
-                game.scGame.addChild(shoot);
+                var shoot = new PlayerShoot(this.x+8, this.y-16);
+                //game.scGame.addChild(shoot);
             }
         });
     }
 });
 
-var Shoot = enchant.Class.create(enchant.Sprite, {
-
-    initialize: function (x, y) {
-        var game = Game.instance;
-
-        enchant.Sprite.call(this, 16, 16);
-        this.image = game.assets['www/picture/ball.png'];
-        this.sound = game.assets['www/sound/M4A1_Single.wav'];
-        this.sound.clone().play();
-        this.x = x;
-        this.y = y;
-        this.show = true;
-        this.damage = 1;
-        this.frame = 7;
-        this.speed = 20;
-
-        this.addEventListener('enterframe', function () {
-            this.y -= this.speed;
-            if(this.y > game.height || this.x > game.width || this.x < -this.width || this.y < -this.height) {
-                this.remove();
-            }
-        });
-    },
-
-    remove: function () {
-        var game = Game.instance;
-        game.scGame.removeChild(this);
-        delete this;
-    }
-});
