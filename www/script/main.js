@@ -8,6 +8,7 @@ window.onload = function () {
     //image
     game.preload('www/picture/spaceship.png');
     game.preload('www/picture/ball.png');
+    game.preload('www/picture/enemy.png');
     game.preload('www/picture/resume.png');
     game.preload('www/picture/play.png');
     game.preload('www/picture/shop.png');
