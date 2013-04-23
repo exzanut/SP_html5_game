@@ -5,6 +5,7 @@ window.onload = function () {
     game.fps = 30;
     game.scale = 1;
 
+    //image
     game.preload('www/picture/spaceship.png');
     game.preload('www/picture/ball.png');
     game.preload('www/picture/resume.png');
@@ -12,6 +13,9 @@ window.onload = function () {
     game.preload('www/picture/shop.png');
     game.preload('www/picture/guide.png');
     game.preload('www/picture/okraj.png');
+
+    //sound
+    game.preload('www/sound/M4A1_Single.wav');
 
     game.onload = function() {
         var scGame = new SceneGame();
@@ -165,11 +169,6 @@ var SceneGame = Class.create(Scene, {
         });
 
         this.addEventListener('enterframe', function () {
-            if(game.frame%5 == 0){
-                var shoot = new Shoot(player.x+8, player.y-16);
-                this.addChild(shoot);
-            }
-
             if(game.input.a){
                 game.pushScene(game.scMenu);
 
@@ -209,6 +208,11 @@ var Player = enchant.Class.create(enchant.Sprite, {
             if (game.input.down) {
                 this.y += 10;
             }
+
+            if(game.frame%5 == 0){
+                var shoot = new Shoot(this.x+8, this.y-16);
+                game.scGame.addChild(shoot);
+            }
         });
     }
 });
@@ -220,6 +224,8 @@ var Shoot = enchant.Class.create(enchant.Sprite, {
 
         enchant.Sprite.call(this, 16, 16);
         this.image = game.assets['www/picture/ball.png'];
+        this.sound = game.assets['www/sound/M4A1_Single.wav'];
+        this.sound.clone().play();
         this.x = x;
         this.y = y;
         this.show = true;
@@ -232,22 +238,7 @@ var Shoot = enchant.Class.create(enchant.Sprite, {
             if(this.y > game.height || this.x > game.width || this.x < -this.width || this.y < -this.height) {
                 this.remove();
             }
-            //this.update();
         });
-    },
-
-    update: function () {
-        var game = Game.instance;
-
-        if (game.frame%2 == 0 && this.show == true){
-            this.show = false;
-            game.scGame.removeChild(this);
-        }
-        else if(game.frame%2 == 0 && this.show == false){
-            this.show = true;
-            game.scGame.addChild(this);
-        }
-
     },
 
     remove: function () {
