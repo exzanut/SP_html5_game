@@ -267,7 +267,7 @@ var Player = enchant.Class.create(enchant.Sprite, {
             }
 
             if(game.frame%5 == 0){
-                var shoot = new PlayerShoot(this.x+8, this.y-16);
+                var shoot = new PlayerShoot(this.x+8, this.y-16, Math.PI/2);
             }
         });
     }
