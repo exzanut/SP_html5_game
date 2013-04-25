@@ -50,7 +50,7 @@ var PlayerShoot = enchant.Class.create(Shoot, {
         this.image = game.assets['www/picture/ball.png'];
         this.sound = game.assets['www/sound/M4A1_Single.wav'];
         this.sound.clone().play();
-        this.frame = 7;
-        this.damage = 1;
+        //this.damage = 1;
+        this.frame = 6;
     }
 });

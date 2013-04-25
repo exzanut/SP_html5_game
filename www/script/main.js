@@ -14,6 +14,8 @@ window.onload = function () {
     game.preload('www/picture/shop.png');
     game.preload('www/picture/guide.png');
     game.preload('www/picture/okraj.png');
+    game.preload('www/picture/bar.png');
+    game.preload('www/picture/barFragment.png');
 
     //sound
     game.preload('www/sound/M4A1_Single.wav');
@@ -44,7 +46,7 @@ window.onload = function () {
     game.start();
 };
 
-var SceneMenu = Class.create(Scene, {
+var SceneMenu = Class.create(enchant.Scene, {
     // The main menu scene.
     initialize: function() {
         // Call superclass constructor
@@ -156,7 +158,7 @@ var SceneMenu = Class.create(Scene, {
     }
 });
 
-var SceneGame = Class.create(Scene, {
+var SceneGame = Class.create(enchant.Scene, {
     // The main game scene.
     initialize: function() {
         // Call superclass constructor
@@ -165,9 +167,20 @@ var SceneGame = Class.create(Scene, {
         this.backgroundColor = 'blue';
         var game = Game.instance;
         var player = new Player(100,600);
-        this.addChild(player);
+
+        var barHP = new Bar(440, 270);
+        var hpFrag = new BarFragment(441,1);
+        hpFrag.backgroundColor = 'darkgreen';
+        //hpFrag.height = (game.height/player.hull.maxDmgCap)*player.hull.actDmg-2;
+       // hpFrag.y = game.height-hpFrag.height-1;
+
+        var barMP = new Bar(460, 270);
+        var mpFrag = new BarFragment(461,1);
+        mpFrag.backgroundColor = 'darkblue';
+        //mpFrag.height = (game.height/player.generator.maxEnergyCap)*player.generator.actEnergy-2;
+        //mpFrag.y = game.height-mpFrag.height-1;
+
         var enemySpawner = new EnemySpawner();
-        this.addChild(enemySpawner);
 
         this.addEventListener('touchend', function () {
 
@@ -178,6 +191,50 @@ var SceneGame = Class.create(Scene, {
                 game.pushScene(game.scMenu);
 
             }
+
+            hpFrag.height = (game.height/player.hull.maxDmgCap)*player.hull.actDmg-2;
+            hpFrag.y = game.height-hpFrag.height-1;
+
+            mpFrag.height = (game.height/player.generator.maxEnergyCap)*player.generator.actEnergy-2;
+            mpFrag.y = game.height-mpFrag.height-1;
+
+            if(game.frame%10 == 0){
+                //if(player.hull.actDmg > 0)player.hull.actDmg--;
+            }
+        });
+
+        this.addChild(player);
+        this.addChild(barHP);
+        this.addChild(hpFrag);
+        this.addChild(barMP);
+        this.addChild(mpFrag);
+        this.addChild(enemySpawner);
+    }
+});
+
+var Bar = enchant.Class.create(enchant.Sprite, {
+    initialize: function (x, y) {
+        var game = Game.instance;
+        enchant.Sprite.call(this, 20, 100);
+        this.image = game.assets['www/picture/bar.png'];
+        this.x = x;
+        this.y = y;
+        this.scaleY = game.height/this.height;
+
+        this.addEventListener('enterframe', function (e) {
+        });
+    }
+});
+
+var BarFragment = enchant.Class.create(enchant.Sprite, {
+    initialize: function (x, y) {
+        var game = Game.instance;
+        enchant.Sprite.call(this, 18, 100);
+        this.image = game.assets['www/picture/barFragment.png'];
+        this.x = x;
+        this.y = y;
+
+        this.addEventListener('enterframe', function (e) {
         });
     }
 });
@@ -185,20 +242,15 @@ var SceneGame = Class.create(Scene, {
 var Player = enchant.Class.create(enchant.Sprite, {
     initialize: function (x, y) {
         var game = Game.instance;
-
         enchant.Sprite.call(this, 32, 64);
         this.image = game.assets['www/picture/spaceship.png'];
         this.x = x;
         this.y = y;
-        this.frame = 0;
-        this.damage = 100;
-        this.energy = 100;
-        this.weaponLevel = 1;
 
-        this.addEventListener('touchmove', function (e) {
-            this.y = e.y-50;
-            this.x = e.x-20;
-        });
+        //soucasti lodi
+        this.hull = new Hull();
+        this.shield = new Shield();
+        this.generator = new Generator();
 
         this.addEventListener('enterframe', function (e) {
             if (game.input.left) {
@@ -215,8 +267,7 @@ var Player = enchant.Class.create(enchant.Sprite, {
             }
 
             if(game.frame%5 == 0){
-                //var shoot = new PlayerShoot(this.x+8, this.y-16, Math.PI/2);
-                //game.scGame.addChild(shoot);
+                var shoot = new PlayerShoot(this.x+8, this.y-16);
             }
         });
     }
