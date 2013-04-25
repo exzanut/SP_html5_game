@@ -44,9 +44,9 @@ var PlayerShoot = enchant.Class.create(Shoot, {
 
     initialize: function (x, y,direction) {
         var game = Game.instance;
-        this.moveSpeed = 20;
         Shoot.call(this, x, y,direction);
-        
+        this.moveSpeed = 20;
+
         this.image = game.assets['www/picture/ball.png'];
         this.sound = game.assets['www/sound/M4A1_Single.wav'];
         this.sound.clone().play();
