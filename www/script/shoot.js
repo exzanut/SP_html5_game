@@ -1,13 +1,13 @@
 var Shoot = enchant.Class.create(enchant.Sprite, {
-    initialize: function (x, y, direction,moveSpeed) {
+    initialize: function (x, y, direction) {
         enchant.Sprite.call(this, 16, 16);
         var game = Game.instance;
         this.x = x;
         this.y = y;
         
         this.direction = direction;
-        this.moveSpeed=moveSpeed;
-
+        this.moveSpeed=10;
+        this.damage=0;
         this.addEventListener('enterframe', function () {
             this.x += this.moveSpeed * Math.cos(this.direction);
             this.y -= this.moveSpeed * Math.sin(this.direction);
@@ -26,11 +26,11 @@ var Shoot = enchant.Class.create(enchant.Sprite, {
 
 var EnemyShoot = enchant.Class.create(Shoot, {
     initialize: function (x, y,direction) {
-        var moveSpeed = 10;
-        Shoot.call(this, x, y,direction,moveSpeed);
+        Shoot.call(this, x, y,direction);
+        this.moveSpeed = 10;
         this.image = Game.instance.assets['www/picture/enemy.png'];
         this.frame = 60;
-        
+        this.damage=1;
         
        /* this.addEventListener('enterframe', function () {
             if(player.within(this, 8)) {
@@ -42,10 +42,10 @@ var EnemyShoot = enchant.Class.create(Shoot, {
 
 var PlayerShoot = enchant.Class.create(Shoot, {
 
-    initialize: function (x, y) {
+    initialize: function (x, y,direction) {
         var game = Game.instance;
-        var moveSpeed = 20;
-        Shoot.call(this, x, y,Math.PI/2,moveSpeed);
+        this.moveSpeed = 20;
+        Shoot.call(this, x, y,direction);
         
         this.image = game.assets['www/picture/ball.png'];
         this.sound = game.assets['www/sound/M4A1_Single.wav'];
