@@ -1,37 +1,67 @@
-var EnemySpawner = enchant.Class.create(enchant.Sprite,{
+var EnemySpawner = enchant.Class.create(enchant.Node,{
     initialize: function () {
       var game = Game.instance;
-      Sprite.call(this,0,0);
-         this.addEventListener('enterframe', function () {
-            if(game.frame%60==0) {
-              var x = Math.random()*game.width;
-              var enemy;
-            if(Math.random()*2<1){
-              enemy = new Bear(x, 0);
-            }else{
-              enemy = new Bear3(x, 0);
-            } 
-            enemy.key = game.frame;
-            //game.enemies[game.frame] = enemy;
-            game.scGame.addChild(enemy);   
-          }
-          if(game.frame%40==0) {
-            var x = Math.random()*game.width;
-            var enemy = new Bear2(x, 0); 
-            enemy.key = game.frame;
-            //game.enemies[game.frame] = enemy;
-            game.scGame.addChild(enemy);
-          }
-          });
+      Node.call(this);
+      var group1 = new EnemyGroup([[1,0,0],[1,0,13],[1,0,13]]);
+      var group2 = new EnemyGroup([[2,-20,0],[2,20,0]]);
+      var group3 = new EnemyGroup([[2,-20,0],[2,20,0],[4,-20,10],[4,20,0]]);
+      var groupArray = [group1,group2,group3];
+
+
+      this.addEventListener('enterframe', function (){
+        if(game.frame%60==0) {
+          var x = Math.random()*(game.width-60)+30;
+          var r = Math.floor(Math.random()*groupArray.length);
+          groupArray[r].spawnGroup(x);
+        }           
+      });
        
     } 
 });
 
+var EnemyGroup = enchant.Class.create({
+  initialize: function (enemyArray) {
+    this.enemyArray=enemyArray; // [enemyID,relativeX,delayedTime]
+  },
+  spawnGroup: function(x){
+     for(var i=0;i<this.enemyArray.length;i++){
+        var enemy = this.getNewEnemy(this.enemyArray[i][0],x);
+        enemy.x+=this.enemyArray[i][1];
+        
+          this.spawnDelayedEnemy(enemy,this.enemyArray[i][2]);
+        
+     }  
+  },
+  spawnDelayedEnemy: function(enemy,delayedTime){
+    Game.instance.scGame.tl.delay(delayedTime).then(function(){
+       Game.instance.scGame.addChild(enemy);
+    });
+  },
+  getNewEnemy: function(id,x){
+    switch(id){
+      case 1:
+        return new Enemy1(x,-10);
+        break;
+      case 2:
+        return new Enemy2(x,-10);
+        break;
+      case 3:
+        return new Enemy3(x,-10);
+        break;
+      case 4:
+        return new Enemy4(x,-10);
+        break;
+      case 5:
+        return new Enemy5(x,-10);
+        break;
+    }
+  }
+});
 
 
 var Enemy = enchant.Class.create(enchant.Sprite, {
 
-    initialize: function (x, y,mArray) {
+    initialize: function (x, y) {
         /**
          * As with the Player class, you set size at 16x16 Sprite base and expand.
          */
@@ -39,25 +69,24 @@ var Enemy = enchant.Class.create(enchant.Sprite, {
         this.x = x;
         this.y = y;
         
-        var moveArray;
-        moveArray=mArray;
-
+        this.moveArray=new Array(); //[age,angle,speed]
+        Game.instance.enemies[Game.instance.enemyCnt++]=this;
          this.addEventListener('enterframe', function () {
             if(this.y > Game.instance.height || this.x > Game.instance.width || this.x < -this.width || this.y < -this.height) {
-              console.log("mazu");
                 this.remove();
             }
-
-            for(var i=0;i<moveArray.length;i++){
-              if (this.age>moveArray[i][0]){
+          
+            for(var i=0;i<this.moveArray.length;i++){
+              if (this.age>this.moveArray[i][0]){
                   
-                  this.direction=moveArray[i][1];
-                  this.moveSpeed = moveArray[i][2];
+
+                  this.direction = this.moveArray[i][1];
+                  this.moveSpeed = this.moveArray[i][2];
              }
             }
             
             this.move(); 
-            if(this.age%20==0){
+            if(this.age%30==0){
               var shoot=new EnemyShoot(this.x,this.y+10,3/2*Math.PI);
               //var shoot=new EnemyShoot(this.x,this.y+10,5/4*Math.PI);
               //var shoot=new EnemyShoot(this.x,this.y+10,7/4*Math.PI);
@@ -74,55 +103,79 @@ var Enemy = enchant.Class.create(enchant.Sprite, {
     move: function () {
         this.x += this.moveSpeed * Math.cos(this.direction / 180 * Math.PI);
         this.y -= this.moveSpeed * Math.sin(this.direction / 180 * Math.PI)
-        
+
     },
     remove: function () {
-        
         Game.instance.scGame.removeChild(this);
-       // delete game.enemies[this.key];
+        delete Game.instance.enemies[this.key];
     }
 });        
 
 
-var Bear = enchant.Class.create(Enemy, {
+var Enemy1 = enchant.Class.create(Enemy, {
 
    initialize: function (x, y) {
-       var moveArray = new Array(); //[age,angle,speed]
+       Enemy.call(this, x, y);
        if(x>Game.instance.width/2){
-         moveArray=[[0,270,4],[40,135,3],[60,270,5],[90,210,7]];
+         this.moveArray=[[0,270,5],[40,155,4],[60,270,6],[90,210,7]];
        }else{
-         moveArray=[[0,270,4],[40,45,3],[60,270,5],[90,330,7]];
+         this.moveArray=[[0,270,5],[40,25,4],[60,270,6],[90,330,7]];
        }
-       Enemy.call(this, x, y,moveArray);
-       Game.instance.assets['www/picture/enemy.png'];
+       
+       this.image = Game.instance.assets['www/picture/enemy.png'];
        this.frame = 22;
 
     }
 });
 
 
-var Bear2 = enchant.Class.create(Enemy, {
+var Enemy2 = enchant.Class.create(Enemy, {
 
    initialize: function (x, y) {
-       var moveArray = new Array();
+       Enemy.call(this, x, y);  
        if(x>Game.instance.width/2){
-        moveArray=[[0,270,4],[20,210,9],[50,270,7]];
+        this.moveArray=[[0,270,4],[20,210,9],[50,270,7]];
        }else{
-        moveArray=[[0,270,4],[20,330,9],[50,270,7]]; 
+        this.moveArray=[[0,270,4],[20,330,9],[50,270,7]]; 
        }
-       Enemy.call(this, x, y,moveArray);
        this.image = Game.instance.assets['www/picture/enemy.png'];
        this.frame = 11;
     }
 });
 
-var Bear3 = enchant.Class.create(Enemy, {
+var Enemy3 = enchant.Class.create(Enemy, {
 
    initialize: function (x, y) {
-       var moveArray = new Array();  
-       moveArray=[[0,270,3],[15,250,4],[35,290,4],[55,250,4],[75,290,4],[90,250,4]];
-       Enemy.call(this, x, y,moveArray);
+       Enemy.call(this, x, y);  
+       this.moveArray=[[0,270,3],[15,250,4],[35,290,4],[55,250,4],[75,290,4],[90,250,4]];
+       
        this.image = Game.instance.assets['www/picture/enemy.png'];
        this.frame = 23;
+    }
+});
+
+var Enemy4 = enchant.Class.create(enchant.Sprite, {
+  initialize: function(x,y){
+    enchant.Sprite.call(this,16,16);
+    this.image = Game.instance.assets['www/picture/enemy.png'];
+    this.frame = 25;
+    this.x=x;
+    this.y=y;
+    this.tl.moveBy(50,50,10).moveBy(0,50,10).moveBy(-50,50,10).moveBy(0,50,10).loop();
+  }
+});
+
+var Enemy5 = enchant.Class.create(Enemy, {
+
+   initialize: function (x, y) {
+       Enemy.call(this, x, y);  
+        if(x<Game.instance.width/2){
+         this.moveArray=[[0,270,4],[40,135,3],[60,270,5],[90,210,7]];
+       }else{
+         this.moveArray=[[0,270,4],[40,45,3],[60,270,5],[90,330,7]];
+       }
+       
+       this.image = Game.instance.assets['www/picture/enemy.png'];
+       this.frame = 22;
     }
 });
