@@ -28,13 +28,15 @@ window.onload = function () {
         game.pushScene(scMenu);
 
         var gameRun = false;
+        game.enemies = new Array();
+        game.enemyCnt=0;
 
         //keybind
         game.keybind(37, 'left');
         game.keybind(38, 'up');
         game.keybind(39, 'right');
         game.keybind(40, 'down');
-        game.keybind(32, 'a'); //tab
+        game.keybind(27, 'a'); //esc
         game.keybind(13, 'b'); //enter
 
     }
@@ -213,7 +215,7 @@ var Player = enchant.Class.create(enchant.Sprite, {
             }
 
             if(game.frame%5 == 0){
-                var shoot = new PlayerShoot(this.x+8, this.y-16);
+                //var shoot = new PlayerShoot(this.x+8, this.y-16, Math.PI/2);
                 //game.scGame.addChild(shoot);
             }
         });
