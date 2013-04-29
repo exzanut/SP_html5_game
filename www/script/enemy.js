@@ -4,7 +4,7 @@ var EnemySpawner = enchant.Class.create(enchant.Node,{
       Node.call(this);
       var group1 = new EnemyGroup([[1,0,0],[1,0,13],[1,0,13]]);
       var group2 = new EnemyGroup([[2,-20,0],[2,20,0]]);
-      var group3 = new EnemyGroup([[2,-20,0],[2,20,0],[4,-20,10],[4,20,0]]);
+      var group3 = new EnemyGroup([[2,-20,0],[2,20,0],[4,50,10],[4,-50,20]]);
       var groupArray = [group1,group2,group3];
 
 
@@ -68,9 +68,15 @@ var Enemy = enchant.Class.create(enchant.Sprite, {
         enchant.Sprite.call(this, 16, 16);
         this.x = x;
         this.y = y;
-        
+        this.HP = 1;
+
         this.moveArray=new Array(); //[age,angle,speed]
+        this.key=Game.instance.enemyCnt;
         Game.instance.enemies[Game.instance.enemyCnt++]=this;
+        if(Game.instance.enemyCnt>30){
+          Game.instance.enemyCnt=0;
+        }
+
          this.addEventListener('enterframe', function () {
             if(this.y > Game.instance.height || this.x > Game.instance.width || this.x < -this.width || this.y < -this.height) {
                 this.remove();
@@ -86,8 +92,10 @@ var Enemy = enchant.Class.create(enchant.Sprite, {
             }
             
             this.move(); 
-            if(this.age%30==0){
-              var shoot=new EnemyShoot(this.x,this.y+10,3/2*Math.PI);
+            if(this.age%40==0){
+              new EnemyShoot(this.x,this.y+10,3/2*Math.PI);
+              new RoundEnShoot(this.x,this.y+10,7/4*Math.PI);
+              new RoundEnShoot(this.x,this.y+10,5/4*Math.PI);
               //var shoot=new EnemyShoot(this.x,this.y+10,5/4*Math.PI);
               //var shoot=new EnemyShoot(this.x,this.y+10,7/4*Math.PI);
             } 
@@ -105,6 +113,12 @@ var Enemy = enchant.Class.create(enchant.Sprite, {
         this.y -= this.moveSpeed * Math.sin(this.direction / 180 * Math.PI)
 
     },
+    getDmg: function (dmg) {
+      this.HP-=dmg;
+      if(this.HP<=0){
+        this.remove();
+      }
+    },
     remove: function () {
         Game.instance.scGame.removeChild(this);
         delete Game.instance.enemies[this.key];
@@ -121,7 +135,7 @@ var Enemy1 = enchant.Class.create(Enemy, {
        }else{
          this.moveArray=[[0,270,5],[40,25,4],[60,270,6],[90,330,7]];
        }
-       
+       this.HP=2;
        this.image = Game.instance.assets['www/picture/enemy.png'];
        this.frame = 22;
 
@@ -154,28 +168,15 @@ var Enemy3 = enchant.Class.create(Enemy, {
     }
 });
 
-var Enemy4 = enchant.Class.create(enchant.Sprite, {
+var Enemy4 = enchant.Class.create(Enemy, {
   initialize: function(x,y){
-    enchant.Sprite.call(this,16,16);
+    Enemy.call(this,x,y);
     this.image = Game.instance.assets['www/picture/enemy.png'];
     this.frame = 25;
-    this.x=x;
-    this.y=y;
-    this.tl.moveBy(50,50,10).moveBy(0,50,10).moveBy(-50,50,10).moveBy(0,50,10).loop();
-  }
-});
-
-var Enemy5 = enchant.Class.create(Enemy, {
-
-   initialize: function (x, y) {
-       Enemy.call(this, x, y);  
-        if(x<Game.instance.width/2){
-         this.moveArray=[[0,270,4],[40,135,3],[60,270,5],[90,210,7]];
-       }else{
-         this.moveArray=[[0,270,4],[40,45,3],[60,270,5],[90,330,7]];
-       }
-       
-       this.image = Game.instance.assets['www/picture/enemy.png'];
-       this.frame = 22;
+    this.HP=4;
+  },
+  move: function () {
+      this.tl.moveBy(50,50,10).moveBy(0,50,10).moveBy(-50,50,10).moveBy(0,50,10).loop();
     }
 });
+

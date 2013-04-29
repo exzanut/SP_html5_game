@@ -40,17 +40,41 @@ var EnemyShoot = enchant.Class.create(Shoot, {
     }
 });
 
+var RoundEnShoot = enchant.Class.create(EnemyShoot, {
+    initialize: function (x, y,direction) {
+        EnemyShoot.call(this, x, y,direction);
+        this.moveSpeed = 10;
+        this.image = Game.instance.assets['www/picture/ball.png'];
+        this.frame = 4;
+        this.damage=1;
+        
+       
+    }
+});
+
+
 var PlayerShoot = enchant.Class.create(Shoot, {
 
     initialize: function (x, y,direction) {
         var game = Game.instance;
-        this.moveSpeed = 20;
         Shoot.call(this, x, y,direction);
+        this.moveSpeed = 20;
+        
         
         this.image = game.assets['www/picture/ball.png'];
         this.sound = game.assets['www/sound/M4A1_Single.wav'];
         this.sound.clone().play();
         this.frame = 7;
         this.damage = 1;
+
+        this.addEventListener('enterframe', function () {
+            for(var i =0;i<Game.instance.enemies.length;i++){
+                var enemy = Game.instance.enemies[i];
+                if (this.intersect(enemy)){
+                    this.remove();
+                    enemy.getDmg(this.damage);
+                }
+            }
+        });
     }
 });
