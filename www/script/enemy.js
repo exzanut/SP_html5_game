@@ -10,7 +10,7 @@ var EnemySpawner = enchant.Class.create(enchant.Node,{
 
       this.addEventListener('enterframe', function (){
         if(game.frame%60==0) {
-          var x = Math.random()*(game.width-60)+30;
+          var x = Math.random()*(game.gameW-60)+30;
           var r = Math.floor(Math.random()*groupArray.length);
           groupArray[r].spawnGroup(x);
         }           
@@ -78,7 +78,7 @@ var Enemy = enchant.Class.create(enchant.Sprite, {
         }
 
          this.addEventListener('enterframe', function () {
-            if(this.y > Game.instance.height || this.x > Game.instance.width || this.x < -this.width || this.y < -this.height) {
+            if(this.y > Game.instance.height || this.x > Game.instance.gameW - this.width || this.x < -this.width || this.y < -this.height) {
                 this.remove();
             }
           
