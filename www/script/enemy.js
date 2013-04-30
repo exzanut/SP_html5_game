@@ -92,13 +92,8 @@ var Enemy = enchant.Class.create(enchant.Sprite, {
             }
             
             this.move(); 
-            if(this.age%40==0){
-              new EnemyShoot(this.x,this.y+10,3/2*Math.PI);
-              new RoundEnShoot(this.x,this.y+10,7/4*Math.PI);
-              new RoundEnShoot(this.x,this.y+10,5/4*Math.PI);
-              //var shoot=new EnemyShoot(this.x,this.y+10,5/4*Math.PI);
-              //var shoot=new EnemyShoot(this.x,this.y+10,7/4*Math.PI);
-            } 
+            this.shoot();
+           
         });
 
 
@@ -112,6 +107,15 @@ var Enemy = enchant.Class.create(enchant.Sprite, {
         this.x += this.moveSpeed * Math.cos(this.direction / 180 * Math.PI);
         this.y -= this.moveSpeed * Math.sin(this.direction / 180 * Math.PI)
 
+    },
+    shoot: function () {
+        if(this.age%40==0){
+          new EnemyShoot(this.x,this.y+10,3/2*Math.PI);
+          new RoundEnShoot(this.x,this.y+10,7/4*Math.PI);
+          new RoundEnShoot(this.x,this.y+10,5/4*Math.PI);
+          //var shoot=new EnemyShoot(this.x,this.y+10,5/4*Math.PI);
+          //var shoot=new EnemyShoot(this.x,this.y+10,7/4*Math.PI);
+        } 
     },
     getDmg: function (dmg) {
       this.HP-=dmg;
@@ -131,7 +135,7 @@ var Enemy1 = enchant.Class.create(Enemy, {
    initialize: function (x, y) {
        Enemy.call(this, x, y);
        if(x>Game.instance.width/2){
-         this.moveArray=[[0,270,5],[40,155,4],[60,270,6],[90,210,7]];
+         this.moveArray=[[0,270,5],[40,155,4],[60,270,6],[90,210,7]]; 
        }else{
          this.moveArray=[[0,270,5],[40,25,4],[60,270,6],[90,330,7]];
        }
@@ -176,7 +180,7 @@ var Enemy4 = enchant.Class.create(Enemy, {
     this.HP=4;
   },
   move: function () {
-      this.tl.moveBy(50,50,10).moveBy(0,50,10).moveBy(-50,50,10).moveBy(0,50,10).loop();
+      this.tl.moveBy(50,50,10).moveBy(0,50,10).moveBy(-50,50,10).moveBy(0,50,10).loop(); //zig-zag
     }
 });
 
