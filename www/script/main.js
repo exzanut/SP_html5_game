@@ -29,9 +29,12 @@ window.onload = function () {
 
         game.pushScene(scMenu);
 
+
         var gameRun = false;
         game.enemies = new Array();
         game.enemyCnt=0;
+        game.gameW = game.width;    //sirka herni plochy
+        game.playerShip = new Player();
 
         //keybind
         game.keybind(37, 'left');
@@ -40,7 +43,6 @@ window.onload = function () {
         game.keybind(40, 'down');
         game.keybind(27, 'a'); //esc
         game.keybind(13, 'b'); //enter
-
     }
 
     game.start();
@@ -158,38 +160,45 @@ var SceneMenu = Class.create(enchant.Scene, {
     }
 });
 
+var SceneShop = Class.create(enchant.Scene, {
+    // The shop game scene.
+    initialize: function() {
+        // Call superclass constructor
+        Scene.apply(this);
+
+
+
+        this.addEventListener('enterframe', function () {
+        });
+    }
+});
+
 var SceneGame = Class.create(enchant.Scene, {
-    // The main game scene.
+    // The game game scene.
     initialize: function() {
         // Call superclass constructor
         Scene.apply(this);
 
         this.backgroundColor = 'blue';
         var game = Game.instance;
-        var player = new Player(100,600);
 
         var barHP = new Bar(440, 270);
         var hpFrag = new BarFragment(441,1);
         hpFrag.backgroundColor = 'darkgreen';
-        //hpFrag.height = (game.height/player.hull.maxDmgCap)*player.hull.actDmg-2;
-       // hpFrag.y = game.height-hpFrag.height-1;
 
         var barMP = new Bar(460, 270);
         var mpFrag = new BarFragment(461,1);
         mpFrag.backgroundColor = 'darkblue';
-        //mpFrag.height = (game.height/player.generator.maxEnergyCap)*player.generator.actEnergy-2;
-        //mpFrag.y = game.height-mpFrag.height-1;
 
+        var player = new Player(100,600);
         var enemySpawner = new EnemySpawner();
 
-        this.addEventListener('touchend', function () {
-
-        });
+        game.gameW -= barHP.width + barMP.width;
+        game.playerShip = player;
 
         this.addEventListener('enterframe', function () {
             if(game.input.a){
                 game.pushScene(game.scMenu);
-
             }
 
             hpFrag.height = (game.height/player.hull.maxDmgCap)*player.hull.actDmg-2;
