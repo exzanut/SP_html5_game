@@ -16,6 +16,9 @@ window.onload = function () {
     game.preload('www/picture/okraj.png');
     game.preload('www/picture/bar.png');
     game.preload('www/picture/barFragment.png');
+    game.preload('www/picture/spaceBG.png');
+    game.preload('www/picture/explosion.png');
+    game.preload('www/picture/bossS.png');
 
     //sound
     game.preload('www/sound/M4A1_Single.wav');
@@ -179,7 +182,13 @@ var SceneGame = Class.create(enchant.Scene, {
         // Call superclass constructor
         Scene.apply(this);
 
-        this.backgroundColor = 'blue';
+       // this.backgroundColor = 'blue';
+        var bgImg = new Sprite(Game.instance.width,Game.instance.height);
+        var bgImg2 = new Sprite(Game.instance.width,Game.instance.height);
+        bgImg.image=Game.instance.assets['www/picture/spaceBG.png'];
+        bgImg2.image=Game.instance.assets['www/picture/spaceBG.png'];
+        bgImg2.y=-Game.instance.height;
+
         var game = Game.instance;
 
         var barHP = new Bar(440, 270);
@@ -207,11 +216,20 @@ var SceneGame = Class.create(enchant.Scene, {
             mpFrag.height = (game.height/player.generator.maxEnergyCap)*player.generator.actEnergy-2;
             mpFrag.y = game.height-mpFrag.height-1;
 
-            if(game.frame%10 == 0){
+            bgImg.y+=1;
+            bgImg2.y+=1;
+            if (bgImg.y==Game.instance.height){
+                bgImg.y=0;
+                bgImg2.y=-Game.instance.height;
+
+            }
+            if(game.frame%5 == 0){
                 //if(player.hull.actDmg > 0)player.hull.actDmg--;
+
             }
         });
-
+        this.addChild(bgImg);
+        this.addChild(bgImg2);
         this.addChild(player);
         this.addChild(barHP);
         this.addChild(hpFrag);
