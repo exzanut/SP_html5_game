@@ -1,7 +1,7 @@
 enchant();
 
 window.onload = function () {
-    var game = new Game(480, 640);
+    var game = new Game(window.innerWidth, window.innerHeight);
     game.fps = 30;
     game.scale = 1;
 
@@ -221,12 +221,12 @@ var SceneGame = Class.create(enchant.Scene, {
 
         var game = Game.instance;
 
-        var barHP = new Bar(440, 270);
-        var hpFrag = new BarFragment(441,1);
+        var barHP = new Bar(Game.instance.width - (20+20), Game.instance.height/2 - (50));
+        var hpFrag = new BarFragment(Game.instance.width - (20+20)+1, 1);
         hpFrag.backgroundColor = 'darkgreen';
 
-        var barMP = new Bar(460, 270);
-        var mpFrag = new BarFragment(461,1);
+        var barMP = new Bar(Game.instance.width - (20), Game.instance.height/2 - (50));
+        var mpFrag = new BarFragment(Game.instance.width - (20)+1, 1);
         mpFrag.backgroundColor = 'darkblue';
 
         var player = new Player(50, game.height-100);
@@ -339,7 +339,7 @@ var Player = enchant.Class.create(enchant.Sprite, {
             if(Game.instance.soundTurn == true) game.bgrndSound.play();
             if(Game.instance.frame % Game.instance.fps == 0){
                 if(this.generator.maxEnergyCap >= (this.generator.actEnergy + this.generator.energyPerSec)){
-                    //this.generator.actEnergy += this.generator.energyPerSec;
+                    this.generator.actEnergy += this.generator.energyPerSec;
                 }
                 else this.generator.actEnergy = this.generator.maxEnergyCap;
             }
