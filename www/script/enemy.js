@@ -134,6 +134,10 @@ var Enemy = enchant.Class.create(enchant.Sprite, {
       }
     },
     remove: function () {
+<<<<<<< HEAD
+=======
+      Game.instance.score+=Math.floor(this.HP*10);
+>>>>>>> upstream/master
         Game.instance.enemies.removeChild(this);
         delete this;
     }
