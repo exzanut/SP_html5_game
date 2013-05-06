@@ -19,13 +19,21 @@ window.onload = function () {
     game.preload('www/picture/spaceBG.png');
     game.preload('www/picture/explosion.png');
     game.preload('www/picture/bossS.png');
+    game.preload('www/picture/shoot_effect.png');
+    game.preload('www/picture/soundOn.png');
+    game.preload('www/picture/soundOff.png');
 
     //sound
-    game.preload('www/sound/M4A1_Single.wav');
+    game.preload('www/sound/shipExplosion.wav');
+    game.preload('www/sound/background.wav');
+    game.preload('www/sound/baseShoot.wav');
+    game.preload('www/sound/baseExplosion.wav');
 
     game.onload = function() {
         var scGame = new SceneGame();
         game.scGame = scGame;
+
+        game.soundTurn = true;
 
         var scMenu = new SceneMenu();
         game.scMenu = scMenu;
@@ -38,6 +46,8 @@ window.onload = function () {
         game.enemyCnt=0;
         game.gameW = game.width;    //sirka herni plochy
         game.playerShip = new Player();
+        game.score = 0;
+        game.bgrndSound = game.assets['www/sound/background.wav'];
 
         //keybind
         game.keybind(37, 'left');
@@ -85,6 +95,25 @@ var SceneMenu = Class.create(enchant.Scene, {
         imgOkraj.image = game.assets['www/picture/okraj.png'];
         imgOkraj.x = imgPlay.x;
         imgOkraj.y = imgPlay.y;
+
+        var sound = new Sprite(20, 20);
+        if(game.soundTurn == true) sound.image = game.assets['www/picture/soundOn.png'];
+        else sound.image = game.assets['www/picture/soundOff.png'];
+        sound.scaleX = 2;
+        sound.scaleY = 2;
+        sound.x = 50;
+        sound.y = game.height - sound.height - 50;
+
+        sound.addEventListener('touchend', function () {
+            if(game.soundTurn == true) {
+                sound.image = game.assets['www/picture/soundOff.png'];
+                game.soundTurn = false;
+            }
+            else {
+                sound.image = game.assets['www/picture/soundOn.png'];
+                game.soundTurn = true;
+            }
+        });
 
         /*imgOkraj.addEventListener('touchend', function () {
             if(imgOkraj.x == imgPlay.x && imgOkraj.y == imgPlay.y){
@@ -160,6 +189,7 @@ var SceneMenu = Class.create(enchant.Scene, {
         this.addChild(imgShop);
         this.addChild(imgGuide);
         this.addChild(imgOkraj);
+        this.addChild(sound);
     }
 });
 
@@ -167,7 +197,7 @@ var SceneShop = Class.create(enchant.Scene, {
     // The shop game scene.
     initialize: function() {
         // Call superclass constructor
-        Scene.apply(this);
+        enchant.Scene.apply(this);
 
 
 
@@ -199,10 +229,13 @@ var SceneGame = Class.create(enchant.Scene, {
         var mpFrag = new BarFragment(461,1);
         mpFrag.backgroundColor = 'darkblue';
 
-        var player = new Player(100,600);
+        var player = new Player(50, game.height-100);
         var enemySpawner = new EnemySpawner();
 
-        game.gameW -= barHP.width + barMP.width;
+        //this.scoreLabel = new ScoreLabel(8, 8);
+        //this.scoreLabel.score = game.score;
+
+        game.gameW = game.width - (barHP.width + barMP.width);
         game.playerShip = player;
 
         this.addEventListener('enterframe', function () {
@@ -223,10 +256,7 @@ var SceneGame = Class.create(enchant.Scene, {
                 bgImg2.y=-Game.instance.height;
 
             }
-            if(game.frame%5 == 0){
-                //if(player.hull.actDmg > 0)player.hull.actDmg--;
 
-            }
         });
         this.addChild(bgImg);
         this.addChild(bgImg2);
@@ -236,6 +266,7 @@ var SceneGame = Class.create(enchant.Scene, {
         this.addChild(barMP);
         this.addChild(mpFrag);
         this.addChild(enemySpawner);
+        //this.addChild(scoreLabel);
     }
 });
 
@@ -281,20 +312,94 @@ var Player = enchant.Class.create(enchant.Sprite, {
 
         this.addEventListener('enterframe', function (e) {
             if (game.input.left) {
-                this.x -= 10;
+                if(this.x > 0){
+                    this.x -= 10;
+                }
             }
             if (game.input.right) {
-                this.x += 10;
+                if(this.x + this.width < game.gameW){
+                    this.x += 10;
+                }
             }
             if (game.input.up) {
-                this.y -= 10;
+                if(this.y > 0){
+                    this.y -= 10;
+                }
             }
             if (game.input.down) {
-                this.y += 10;
+                if(this.y + this.height < game.height){
+                    this.y += 10;
+                }
             }
 
             if(game.frame%5 == 0){
-                var shoot = new PlayerShoot(this.x+8, this.y-16, Math.PI/2);
+                var shoot = new BasePlayerShoot(this.x+8, this.y-16, Math.PI/2);
+            }
+
+            if(Game.instance.soundTurn == true) game.bgrndSound.play();
+            if(Game.instance.frame % Game.instance.fps == 0){
+                if(this.generator.maxEnergyCap >= (this.generator.actEnergy + this.generator.energyPerSec)){
+                    //this.generator.actEnergy += this.generator.energyPerSec;
+                }
+                else this.generator.actEnergy = this.generator.maxEnergyCap;
+            }
+        });
+    },
+
+    getDmg: function (dmg) {
+        if(this.generator.actEnergy >= dmg*this.shield.energyConsumption){
+            this.generator.actEnergy -= dmg*this.shield.energyConsumption;
+            if(dmg > this.shield.dmgAbsortion){
+                dmg -= this.shield.dmgAbsortion;
+                if(this.hull.actDmg > dmg*this.hull.dmgReduction){
+                    //console.log("Energy, dmg: " + dmg*this.hull.dmgReduction);
+                    this.hull.actDmg -= dmg*this.hull.dmgReduction;
+                }
+                else{
+                    this.hull.actDmg = 0;
+                    //zavolani efektu pro zniceni - vlozit
+                    this.destroyShip();
+                    //Game.instance.stop();
+                }
+            }
+            else{
+                //pohlceni strely - dmg = 0;
+            }
+        }
+        else{
+            if(dmg > (this.generator.actEnergy/this.shield.energyConsumption)*this.shield.dmgAbsortion){
+                dmg -= (this.generator.actEnergy/this.shield.energyConsumption)*this.shield.dmgAbsortion;
+                if(this.hull.actDmg > dmg*this.hull.dmgReduction){
+                    //console.log("No energy, dmg: " + dmg*this.hull.dmgReduction);
+                    this.hull.actDmg -= dmg*this.hull.dmgReduction;
+                }
+                else{
+                    this.hull.actDmg = 0;
+                    //zavolani efektu pro zniceni - vlozit
+                    this.destroyShip();
+                    //Game.instance.stop();
+                }
+            }
+            else{
+                //pohlceni strely - dmg = 0;
+            }
+            this.generator.actEnergy = 0;
+        }
+    },
+
+    destroyShip: function () {
+        this.image = Game.instance.assets['www/picture/shoot_effect.png'];
+        this.sound = Game.instance.assets['www/sound/shipExplosion.wav'];
+        if(Game.instance.soundTurn == true) this.sound.play();
+        this.frame = 0;
+
+        this.addEventListener('enterframe', function () {
+            if(Game.instance.fps%5 ==0){
+                this.frame++;
+                if(this.frame == 5){
+                    Game.instance.scGame.removeChild(this);
+                    delete this;
+                }
             }
         });
     }
