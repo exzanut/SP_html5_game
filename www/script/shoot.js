@@ -32,8 +32,8 @@ var EnemyShoot = enchant.Class.create(Shoot, {
 
        this.addEventListener('enterframe', function () {
             if(Game.instance.playerShip.intersect(this)) {
-                this.remove();
                 Game.instance.playerShip.getDmg(this.damage);
+                this.remove();
             }
         });
     }
@@ -69,8 +69,8 @@ var PlayerShoot = enchant.Class.create(Shoot, {
             for(var i =0;i<Game.instance.enemies.length;i++){
                 var enemy = Game.instance.enemies[i];
                 if (this.intersect(enemy)){
-                    this.destroyShoot();
                     enemy.getDmg(this.damage);
+                    this.destroyShoot();
                 }
             }
         });
@@ -90,11 +90,22 @@ var BasePlayerShoot = enchant.Class.create(PlayerShoot, {
     },
 
     destroyShoot: function () {
+        this.moveSpeed = 0;
+        this.damage = 0;
+        new baseShootExplosion(this.x, this.y);
+        this.remove();
+    }
+});
+
+var baseShootExplosion = Class.create(enchant.Sprite, {
+    initialize: function (x, y) {
+        enchant.Sprite.call(this, 16, 16);
+        this.x = x;
+        this.y = y;
         this.image = Game.instance.assets['www/picture/shoot_effect.png'];
         this.sound = this.sound = Game.instance.assets['www/sound/baseExplosion.wav'];
         if(Game.instance.soundTurn == true) this.sound.clone().play();
         this.frame = 0;
-        this.moveSpeed = 0;
 
         this.addEventListener('enterframe', function () {
             if(Game.instance.fps%2 ==0){
