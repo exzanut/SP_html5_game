@@ -128,12 +128,12 @@ var Enemy = enchant.Class.create(enchant.Sprite, {
     getDmg: function (dmg) {
       this.HP-=dmg;
       if(this.HP<1){
+        Game.instance.score+=Math.floor(this.HP*10);
         new Explosion(this.x,this.y);
         this.remove();
       }
     },
     remove: function () {
-      game.score+=Math.floor(this.HP*10);
         Game.instance.enemies.removeChild(this);
         delete this;
     }
@@ -218,6 +218,7 @@ var Enemy5 = enchant.Class.create(Enemy, {
   getDmg: function (dmg) {
      this.HP-=dmg;
       if(this.HP<=0){
+        Game.instance.score+=Math.floor(this.HP*10);
         new Explosion(this.x,this.y);
         this.remove();
         for(var i=0;i<8;i++){
@@ -288,6 +289,7 @@ var Boss = enchant.Class.create(Enemy, {
   getDmg: function (dmg) {
      this.HP-=dmg;
       if(this.HP<=0){
+        Game.instance.score+=Math.floor(this.HP*10);
         this.explode(); 
       } 
     }
