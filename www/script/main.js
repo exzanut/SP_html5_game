@@ -345,6 +345,8 @@ var Player = enchant.Class.create(enchant.Sprite, {
                 }
                 else this.generator.actEnergy = this.generator.maxEnergyCap;
             }
+
+            game.scoreLabel.score = game.score;
         });
     },
 
