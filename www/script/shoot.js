@@ -28,10 +28,8 @@ var EnemyShoot = enchant.Class.create(Shoot, {
     initialize: function (x, y,direction) {
         Shoot.call(this, x, y,direction);
         this.moveSpeed = 10;
-        this.image = Game.instance.assets['www/picture/enemy.png'];
-        this.frame = 60;
-        this.damage=2;
-        
+        this.damage=1;
+
        this.addEventListener('enterframe', function () {
             if(Game.instance.playerShip.intersect(this)) {
                 this.remove();
@@ -44,12 +42,24 @@ var EnemyShoot = enchant.Class.create(Shoot, {
 var RoundEnShoot = enchant.Class.create(EnemyShoot, {
     initialize: function (x, y,direction) {
         EnemyShoot.call(this, x, y,direction);
-        this.moveSpeed = 10;
+        this.moveSpeed = 8;
         this.image = Game.instance.assets['www/picture/ball.png'];
         this.frame = 4;
         this.damage=1;
     }
 });
+
+var LaserEnShoot = enchant.Class.create(EnemyShoot, {
+    initialize: function (x, y) {
+        EnemyShoot.call(this, x, y,3*Math.PI/2);
+        this.moveSpeed = 12;
+        this.image = Game.instance.assets['www/picture/enemy.png'];
+        this.frame = 60;
+        this.damage=2;
+    }
+});
+
+
 
 var PlayerShoot = enchant.Class.create(Shoot, {
     initialize: function (x, y,direction) {
@@ -96,3 +106,26 @@ var BasePlayerShoot = enchant.Class.create(PlayerShoot, {
         });
     }
 });
+
+var Explosion = enchant.Class.create(enchant.Sprite, {
+    initialize: function (x, y) {
+        enchant.Sprite.call(this, 32, 32);
+        this.x = x;
+        this.y = y;
+        this.image=Game.instance.assets['www/picture/explosion.png'];
+        this.addEventListener('enterframe', function () {
+            this.frame=this.age*2;
+            if(this.age==13){
+                this.remove();
+            }
+        });
+
+        Game.instance.scGame.addChild(this); 
+    },
+    remove: function () {
+        Game.instance.scGame.removeChild(this);
+        delete this;
+    }
+});
+
+
