@@ -66,8 +66,9 @@ var PlayerShoot = enchant.Class.create(Shoot, {
         Shoot.call(this, x, y,direction);
 
         this.addEventListener('enterframe', function () {
-            for(var i =0;i<Game.instance.enemies.length;i++){
-                var enemy = Game.instance.enemies[i];
+            //console.log(Game.instance.enemies.length);
+            for(var i =0;i<Game.instance.enemies.childNodes.length;i++){
+                var enemy = Game.instance.enemies.childNodes[i];
                 if (this.intersect(enemy)){
                     enemy.getDmg(this.damage);
                     this.destroyShoot();
