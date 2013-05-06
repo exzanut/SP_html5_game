@@ -23,6 +23,8 @@ window.onload = function () {
     game.preload('www/picture/soundOn.png');
     game.preload('www/picture/soundOff.png');
 
+    game.preload('www/picture/font0.png');
+
     //sound
     game.preload('www/sound/shipExplosion.wav');
     game.preload('www/sound/background.wav');
@@ -40,8 +42,8 @@ window.onload = function () {
 
         game.pushScene(scMenu);
 
-
         var gameRun = false;
+
         game.enemies = new Array();
         game.enemyCnt=0;
         game.gameW = game.width;    //sirka herni plochy
@@ -220,6 +222,7 @@ var SceneGame = Class.create(enchant.Scene, {
         bgImg2.y=-Game.instance.height;
 
         var game = Game.instance;
+        game.scoreLabel = new ScoreLabel(8, 8);
 
         var barHP = new Bar(Game.instance.width - (20+20), Game.instance.height/2 - (50));
         var hpFrag = new BarFragment(Game.instance.width - (20+20)+1, 1);
@@ -231,9 +234,6 @@ var SceneGame = Class.create(enchant.Scene, {
 
         var player = new Player(50, game.height-100);
         var enemySpawner = new EnemySpawner();
-
-        //this.scoreLabel = new ScoreLabel(8, 8);
-        //this.scoreLabel.score = game.score;
 
         game.gameW = game.width - (barHP.width + barMP.width);
         game.playerShip = player;
@@ -266,7 +266,7 @@ var SceneGame = Class.create(enchant.Scene, {
         this.addChild(barMP);
         this.addChild(mpFrag);
         this.addChild(enemySpawner);
-        //this.addChild(scoreLabel);
+        this.addChild(game.scoreLabel);
     }
 });
 
@@ -304,6 +304,7 @@ var Player = enchant.Class.create(enchant.Sprite, {
         this.image = game.assets['www/picture/spaceship.png'];
         this.x = x;
         this.y = y;
+        this.gearScore = 0;
 
         //soucasti lodi
         this.hull = new Hull();
