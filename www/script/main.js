@@ -31,7 +31,7 @@ window.onload = function () {
     game.preload('www/sound/baseShoot.wav');
     game.preload('www/sound/baseExplosion.wav');
 
-    game.onload = function() {
+    game.onload = function() {  
         var scGame = new SceneGame();
         game.scGame = scGame;
 
@@ -39,12 +39,10 @@ window.onload = function () {
 
         var scMenu = new SceneMenu();
         game.scMenu = scMenu;
-
         game.pushScene(scMenu);
 
         var gameRun = false;
 
-        game.enemies = new Array();
         game.enemyCnt=0;
         game.gameW = game.width;    //sirka herni plochy
         game.playerShip = new Player();
@@ -124,7 +122,7 @@ var SceneMenu = Class.create(enchant.Scene, {
         });*/
 
         this.addEventListener('enterframe', function () {
-            if(game.input.down && game.frame%3 == 0){
+            if(game.input.down && game.frame%2 == 0){
                 if(imgOkraj.x == imgResume.x && imgOkraj.y == imgResume.y && imgResume.visible == true){
                     this.removeChild(imgOkraj);
                     imgOkraj.x = imgPlay.x;
@@ -234,6 +232,7 @@ var SceneGame = Class.create(enchant.Scene, {
 
         var player = new Player(50, game.height-100);
         var enemySpawner = new EnemySpawner();
+        game.enemies = new Group();
 
         game.gameW = game.width - (barHP.width + barMP.width);
         game.playerShip = player;
@@ -267,6 +266,8 @@ var SceneGame = Class.create(enchant.Scene, {
         this.addChild(mpFrag);
         this.addChild(enemySpawner);
         this.addChild(game.scoreLabel);
+        this.addChild(game.enemies)
+
     }
 });
 

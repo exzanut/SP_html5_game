@@ -19,7 +19,7 @@ var EnemySpawner = enchant.Class.create(enchant.Node,{
         
         if(game.frame%70==0 && game.boss==false) {
             if(this.bossChance>10){
-                if((Math.random()*(30-this.bossChance))<1){
+                if((Math.random()*(20-this.bossChance))<1){
                     game.boss=true;
                     this.bossChance=0;
                     boss.spawnGroup(1); //any number
@@ -53,7 +53,7 @@ var EnemyGroup = enchant.Class.create({
   },
   spawnDelayedEnemy: function(enemy,delayedTime){
     Game.instance.scGame.tl.delay(delayedTime).then(function(){
-       Game.instance.scGame.addChild(enemy);
+       Game.instance.enemies.addChild(enemy);
     });
   },
   getNewEnemy: function(id,x){
@@ -88,13 +88,7 @@ var Enemy = enchant.Class.create(enchant.Sprite, {
         this.x = x;
         this.y = y;
         this.HP = 1 + Game.instance.scGame.age/4000;
-
         this.moveArray=new Array(); //[age,angle,speed]
-        this.key=Game.instance.enemyCnt;
-        Game.instance.enemies[Game.instance.enemyCnt++]=this;
-        if(Game.instance.enemyCnt>30){
-          Game.instance.enemyCnt=0;
-        }
 
          this.addEventListener('enterframe', function () {
             if(this.y > Game.instance.height || this.x > Game.instance.gameW - this.width || this.x < -this.width || this.y < -this.height) {
@@ -104,7 +98,6 @@ var Enemy = enchant.Class.create(enchant.Sprite, {
             for(var i=0;i<this.moveArray.length;i++){
               if (this.age>this.moveArray[i][0]){
                   
-
                   this.direction = this.moveArray[i][1];
                   this.moveSpeed = this.moveArray[i][2];
              }
@@ -140,8 +133,9 @@ var Enemy = enchant.Class.create(enchant.Sprite, {
       }
     },
     remove: function () {
-        Game.instance.scGame.removeChild(this);
-        delete Game.instance.enemies[this.key];
+      game.score+=Math.floor(this.HP*10);
+        Game.instance.enemies.removeChild(this);
+        delete this;
     }
 });        
 
@@ -286,6 +280,7 @@ var Boss = enchant.Class.create(Enemy, {
             Game.instance.boss=false;
             var ex = new Explosion(boss.x+boss.width/2,boss.y+boss.height/2);
             ex.tl.scaleTo(5,12);
+            Game.instance.scGame.removeChild(boss);
             boss.remove();
           }  
         }); 
