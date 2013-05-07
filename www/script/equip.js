@@ -16,22 +16,13 @@ var Shield = Class.create({
     }
 });
 
-var Generator = Class.create(enchant.Sprite, {
+var Generator = Class.create({
     // generator
     initialize: function() {
         enchant.Sprite.call(this);
-        this.energyPerSec = 1;
+        this.energyPerSec = 0.1;
         this.actEnergy = 10;
         this.maxEnergyCap = 10;
-
-        /*this.addEventListener('enterframe', function () {
-            console.log("Time 1s: " + (Game.instance.frame % Game.instance.fps));
-            if(Game.instance.frame % Game.instance.fps == 0){
-                if(this.maxEnergyCap > this.actEnergy){
-                    this.actEnergy += this.energyPerSec;
-                }
-            }
-        });*/
     }
 });
 
