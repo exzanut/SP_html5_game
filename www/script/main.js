@@ -4,11 +4,20 @@ window.onload = function () {
     var game = new Game(window.innerWidth, window.innerHeight);
     game.fps = 30;
     game.scale = 1;
+    game.ratio = game.width/500;
 
     //image
     game.preload('www/picture/spaceship.png');
     game.preload('www/picture/ball.png');
     game.preload('www/picture/enemy.png');
+    game.preload('www/picture/mine.png');
+    game.preload('www/picture/laser.png');
+    game.preload('www/picture/roundShoot.png');
+    game.preload('www/picture/enemyShipSmaller.png');
+    game.preload('www/picture/enemyShipSmall.png');
+    game.preload('www/picture/enemyShipMedium.png');
+    game.preload('www/picture/enemyShipLarge.png');
+    game.preload('www/picture/enemyShipLarger.png');
     game.preload('www/picture/resume.png');
     game.preload('www/picture/play.png');
     game.preload('www/picture/shop.png');
@@ -32,13 +41,11 @@ window.onload = function () {
     //sound
     game.preload('www/sound/shipExplosion.wav');
     game.preload('www/sound/background.wav');
+    game.preload('www/sound/backgroundOld.wav');
     game.preload('www/sound/baseShoot.wav');
     game.preload('www/sound/baseExplosion.wav');
 
-    game.onload = function() {  
-        var scGame = new SceneGame();
-        game.scGame = scGame;
-
+    game.onload = function() {   
         game.soundTurn = true;
 
         var scMenu = new SceneMenu();
@@ -229,7 +236,7 @@ var SceneGame = Class.create(enchant.Scene, {
 
         var barHP = new Bar(Game.instance.width - (20+20), Game.instance.height/2 - (50));
         var hpFrag = new BarFragment(Game.instance.width - (20+20)+1, 1);
-        hpFrag.backgroundColor = 'darkgreen';
+        hpFrag.backgroundColor = 'darkred';
 
         var barMP = new Bar(Game.instance.width - (20), Game.instance.height/2 - (50));
         var mpFrag = new BarFragment(Game.instance.width - (20)+1, 1);

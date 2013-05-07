@@ -6,20 +6,19 @@ var EnemySpawner = enchant.Class.create(enchant.Node,{
       var i=0;
       Game.instance.boss=false;
       this.bossChance=0;
-      groupArray[i++] = new EnemyGroup([[1,0,0],[1,0,13],[1,0,13]]);
-      groupArray[i++] = new EnemyGroup([[2,-20,0],[3,0,0],[2,20,0]]);
-      groupArray[i++] = new EnemyGroup([[2,-20,0],[2,20,0],[4,50,10],[4,-50,20]]);
-      groupArray[i++] = new EnemyGroup([[3,-50,0],[2,0,5],[3,50,20]]);
+      groupArray[i++] = new EnemyGroup([[1,0,0],[5,0,14],[1,0,13],[1,0,13]]);
+      groupArray[i++] = new EnemyGroup([[2,-50,0],[2,50,0],[3,0,5]]);
+      groupArray[i++] = new EnemyGroup([[4,-20,0],[2,25,10],[2,55,5],[4,-50,10]]);
+      groupArray[i++] = new EnemyGroup([[3,-50,0],[2,0,2],[3,50,20]]);
       groupArray[i++] = new EnemyGroup([[4,50,0],[5,0,14],[4,-50,0]]);
-      var boss = new EnemyGroup([[10,0,40]]);
-     
-
+      var boss = new EnemyGroup([[10,0,55]]);
 
       this.addEventListener('enterframe', function (){
         
-        if(game.frame%70==0 && game.boss==false) {
-            if(this.bossChance>10){
-                if((Math.random()*(20-this.bossChance))<1){
+        if(game.frame%(Math.floor(70/(Math.sqrt(game.ratio))))==0 && game.boss==false) {
+          var tresh = 10*(Math.sqrt(game.ratio));
+            if(this.bossChance>tresh){
+                if((Math.random()*(tresh*2-this.bossChance))<1){
                     game.boss=true;
                     this.bossChance=0;
                     boss.spawnGroup(1); //any number
@@ -54,6 +53,7 @@ var EnemyGroup = enchant.Class.create({
   spawnDelayedEnemy: function(enemy,delayedTime){
     Game.instance.scGame.tl.delay(delayedTime).then(function(){
        Game.instance.enemies.addChild(enemy);
+
     });
   },
   getNewEnemy: function(id,x){
@@ -123,14 +123,15 @@ var Enemy = enchant.Class.create(enchant.Sprite, {
     },
     shoot: function () {
         if(this.age%30==0){
-          new LaserEnShoot(this.x,this.y+10);
+          new LaserEnShoot(this.x+this.width/2-8,this.y+this.height-4);
         } 
     },
     getDmg: function (dmg) {
       this.HP-=dmg;
       if(this.HP<1){
         Game.instance.score+=this.score;
-        new Explosion(this.x,this.y);
+        var ex = new Explosion(this.x,this.y);
+        ex.tl.scaleTo(this.width/32,12);
         this.remove();
       }
     },
@@ -144,16 +145,15 @@ var Enemy = enchant.Class.create(enchant.Sprite, {
 var Enemy1 = enchant.Class.create(Enemy, {
 
    initialize: function (x, y) {
-       Enemy.call(this, x, y,16,16);
+       Enemy.call(this, x, y,22,21);
        if(x>Game.instance.width/2){
          this.moveArray=[[0,270,5],[40,155,4],[60,270,6],[90,210,7]]; 
        }else{
          this.moveArray=[[0,270,5],[40,25,4],[60,270,6],[90,330,7]];
        }
-       this.HP*=2;
        this.score = Math.floor(this.HP*10);
-       this.image = Game.instance.assets['www/picture/enemy.png'];
-       this.frame = 22;
+       this.image = Game.instance.assets['www/picture/enemyShipSmaller.png'];
+       this.frame = 0;
 
     }
 });
@@ -162,34 +162,34 @@ var Enemy1 = enchant.Class.create(Enemy, {
 var Enemy2 = enchant.Class.create(Enemy, {
 
    initialize: function (x, y) {
-       Enemy.call(this, x, y,16,16);  
+       Enemy.call(this, x, y,28,30);  
        if(x>Game.instance.width/2){
-        this.moveArray=[[0,270,4],[20,210,9],[50,270,7]];
+        this.moveArray=[[0,270,5],[20,210,9],[50,270,7]];
        }else{
-        this.moveArray=[[0,270,4],[20,330,9],[50,270,7]]; 
+        this.moveArray=[[0,270,5],[20,330,9],[50,270,7]]; 
        }
-       this.image = Game.instance.assets['www/picture/enemy.png'];
-       this.frame = 11;
+       this.image = Game.instance.assets['www/picture/enemyShipSmall.png'];
+       this.frame = 3;
     }
 });
 
 var Enemy3 = enchant.Class.create(Enemy, {
 
    initialize: function (x, y) {
-       Enemy.call(this, x, y,16,16);  
+       Enemy.call(this, x, y,42,48);  
        this.moveArray=[[0,270,3],[90,270,1],[120,270,4]];
        
-       this.image = Game.instance.assets['www/picture/enemy.png'];
-       this.frame = 23;
+       this.image = Game.instance.assets['www/picture/enemyShipLarge.png'];
+       this.frame = 1;
        this.HP*=4;
        this.score = Math.floor(this.HP*10);
     },
     shoot: function(){
       if (this.age%30==0){
-          new RoundEnShoot(this.x,this.y+10,7/4*Math.PI);
-          new RoundEnShoot(this.x,this.y+10,5/4*Math.PI);
+          new RoundEnShoot(this.x,this.y+this.height/2,5/4*Math.PI);
+          new RoundEnShoot(this.x+this.width-16,this.y+this.height/2,7/4*Math.PI);
       }else if(this.age%20==0){
-          new LaserEnShoot(this.x,this.y+10);
+          new LaserEnShoot(this.x+this.width/2-8,this.y+this.height-4);
       }
 
     }
@@ -197,9 +197,9 @@ var Enemy3 = enchant.Class.create(Enemy, {
 
 var Enemy4 = enchant.Class.create(Enemy, {
   initialize: function(x,y){
-    Enemy.call(this,x,y,16,16);
-    this.image = Game.instance.assets['www/picture/enemy.png'];
-    this.frame = 20;
+    Enemy.call(this,x,y,32,36);
+    this.image = Game.instance.assets['www/picture/enemyShipMedium.png'];
+    this.frame = 0;
     this.HP*=2;
     this.score = Math.floor(this.HP*10);
   },
@@ -211,18 +211,26 @@ var Enemy4 = enchant.Class.create(Enemy, {
 //bomb
 var Enemy5 = enchant.Class.create(Enemy, {
   initialize: function(x,y){
-    Enemy.call(this,x,y,16,16);
+    Enemy.call(this,x,y,28,28);
     this.moveArray=[[0,330,3],[150,220,3]];
-    this.image = Game.instance.assets['www/picture/enemy.png'];
-    this.frame = 25;
-    this.HP*=5;
+    this.image = Game.instance.assets['www/picture/mine.png'];
+    this.frame = 0;
     this.score = Math.floor(this.HP*10);
+    
+   this.addEventListener('enterframe', function () {
+      if(this.age%30>15){
+        this.frame=1;
+      }else{
+        this.frame=0;
+      }
+    });
+
   },
   shoot: function () {
   },
   getDmg: function (dmg) {
      this.HP-=dmg;
-      if(this.HP<=0){
+      if(this.HP<1){
         Game.instance.score+=this.score;
         new Explosion(this.x,this.y);
         this.remove();
@@ -241,8 +249,8 @@ var Boss = enchant.Class.create(Enemy, {
     this.frame = 0;
     this.HP*=40;
     this.score = Math.floor(this.HP*10);
-    this.tl.moveBy(0,140,40);
-    this.tl.moveBy(-50,0,30)
+    this.tl.moveBy(0,140,50);
+    this.tl.moveBy(this.width/2-(Game.instance.gameW-30)/2,0,40)
   },
   shoot: function () {
     if(this.age%100>35){
@@ -266,7 +274,7 @@ var Boss = enchant.Class.create(Enemy, {
     }
   }, 
   move: function () { 
-      this.tl.moveBy(100,0,60).moveBy(-100,0,60).loop(); //left-right
+      this.tl.moveBy((Game.instance.gameW-this.width-30),0,100).moveBy(-(Game.instance.gameW-this.width-30),0,100).loop(); //left-right
   },
   spawnExplosives: function (num) {
     for(var i=0;i<num;i++){
