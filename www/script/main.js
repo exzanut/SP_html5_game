@@ -31,8 +31,12 @@ window.onload = function () {
     game.preload('www/picture/shoot_effect.png');
     game.preload('www/picture/soundOn.png');
     game.preload('www/picture/soundOff.png');
-
     game.preload('www/picture/font0.png');
+    game.preload('www/picture/shipMid.png');
+    game.preload('www/picture/shipRight.png');
+    game.preload('www/picture/shipLeft.png');
+    game.preload('www/picture/baseShoot.png');
+    game.preload('www/picture/rocketShoot.png');
 
     //sound
     game.preload('www/sound/shipExplosion.wav');
@@ -180,6 +184,7 @@ var SceneMenu = Class.create(enchant.Scene, {
                     imgResume.visible = true;
                     this.addChild(imgResume);
                     game.scGame = new SceneGame();
+                    game.score = 0;
                     game.pushScene(game.scGame);
                 }
 
@@ -237,7 +242,7 @@ var SceneGame = Class.create(enchant.Scene, {
         var mpFrag = new BarFragment(Game.instance.width - (20)+1, 1);
         mpFrag.backgroundColor = 'darkblue';
 
-        var player = new Player(50, game.height-100);
+        var player = new Player(game.gameW/2, game.height-100);
         var enemySpawner = new EnemySpawner();
         game.enemies = new Group();
 
@@ -308,8 +313,13 @@ var BarFragment = enchant.Class.create(enchant.Sprite, {
 var Player = enchant.Class.create(enchant.Sprite, {
     initialize: function (x, y) {
         var game = Game.instance;
-        enchant.Sprite.call(this, 32, 64);
-        this.image = game.assets['www/picture/spaceship.png'];
+        enchant.Sprite.call(this,
+            game.assets['www/picture/shipMid.png'].width,
+            game.assets['www/picture/shipMid.png'].height/3
+        );
+
+        this.image = game.assets['www/picture/shipMid.png'];
+        this.frame = 1;
         this.x = x;
         this.y = y;
         this.gearScore = 0;
@@ -319,30 +329,18 @@ var Player = enchant.Class.create(enchant.Sprite, {
         this.shield = new Shield();
         this.generator = new Generator();
 
+        this.baseS;
+        this.rocketS;
+        this.coverS;
+
         this.addEventListener('enterframe', function (e) {
-            if (game.input.left) {
-                if(this.x > 0){
-                    this.x -= 10;
-                }
-            }
-            if (game.input.right) {
-                if(this.x + this.width < game.gameW){
-                    this.x += 10;
-                }
-            }
-            if (game.input.up) {
-                if(this.y > 0){
-                    this.y -= 10;
-                }
-            }
-            if (game.input.down) {
-                if(this.y + this.height < game.height){
-                    this.y += 10;
-                }
+            this.move(10);
+            if(game.frame%5 == 0){
+                this.baseS = new BasePlayerShoot(this.x + this.width/2 - 2.5, this.y - this.height/2, Math.PI/2);
             }
 
-            if(game.frame%5 == 0){
-                var shoot = new BasePlayerShoot(this.x+8, this.y-16, Math.PI/2);
+            if(game.frame%20 == 0){
+                this.rocketS = new RocketPlayerShoot(this.x-8, this.y-16, Math.PI/2);
             }
 
             if(Game.instance.soundTurn == true) game.bgrndSound.play();
@@ -355,6 +353,99 @@ var Player = enchant.Class.create(enchant.Sprite, {
 
             game.scoreLabel.score = game.score;
         });
+    },
+
+    move: function (moveSpeed) {
+        if (Game.instance.input.left && Game.instance.input.up) {
+            this.width = Game.instance.assets['www/picture/shipLeft.png'].width;
+            this.height = Game.instance.assets['www/picture/shipLeft.png'].height/3;
+            this.image = Game.instance.assets['www/picture/shipLeft.png'];
+            this.frame = 0;
+
+            if(this.x - moveSpeed >= 0 && this.y - moveSpeed >= 0){
+                this.x -= moveSpeed;
+                this.y -= moveSpeed;
+            }
+        }
+        else if (Game.instance.input.left && Game.instance.input.down) {
+            this.width = Game.instance.assets['www/picture/shipLeft.png'].width;
+            this.height = Game.instance.assets['www/picture/shipLeft.png'].height/3;
+            this.image = Game.instance.assets['www/picture/shipLeft.png'];
+            this.frame = 2;
+
+            if(this.x - moveSpeed >= 0 && this.y + moveSpeed <= Game.instance.height - this.height){
+                this.x -= moveSpeed;
+                this.y += moveSpeed;
+            }
+        }
+        else if (Game.instance.input.left) {
+            this.width = Game.instance.assets['www/picture/shipLeft.png'].width;
+            this.height = Game.instance.assets['www/picture/shipLeft.png'].height/3;
+            this.image = Game.instance.assets['www/picture/shipLeft.png'];
+            this.frame = 1;
+
+            if(this.x - moveSpeed >= 0){
+                this.x -= moveSpeed;
+            }
+        }
+        else if (Game.instance.input.right && Game.instance.input.up) {
+            this.width = Game.instance.assets['www/picture/shipRight.png'].width;
+            this.height = Game.instance.assets['www/picture/shipRight.png'].height/3;
+            this.image = Game.instance.assets['www/picture/shipRight.png'];
+            this.frame = 0;
+
+            if(this.x + moveSpeed < Game.instance.gameW - this.width*1.5 && this.y -moveSpeed >= 0){
+                this.x += moveSpeed;
+                this.y -= moveSpeed;
+            }
+        }
+        else if (Game.instance.input.right && Game.instance.input.down) {
+            this.width = Game.instance.assets['www/picture/shipRight.png'].width;
+            this.height = Game.instance.assets['www/picture/shipRight.png'].height/3;
+            this.image = Game.instance.assets['www/picture/shipRight.png'];
+            this.frame = 2;
+
+            if(this.x + moveSpeed < Game.instance.gameW - this.width*1.5 && this.y + moveSpeed <= Game.instance.height - this.height){
+                this.x += moveSpeed;
+                this.y += moveSpeed;
+            }
+        }
+        else if (Game.instance.input.right) {
+            this.width = Game.instance.assets['www/picture/shipRight.png'].width;
+            this.height = Game.instance.assets['www/picture/shipRight.png'].height/3;
+            this.image = Game.instance.assets['www/picture/shipRight.png'];
+            this.frame = 1;
+
+            if(this.x + moveSpeed < Game.instance.gameW - this.width*1.5){
+                this.x += moveSpeed;
+            }
+        }
+        else if (Game.instance.input.up) {
+            this.width = Game.instance.assets['www/picture/shipMid.png'].width;
+            this.height = Game.instance.assets['www/picture/shipMid.png'].height/3;
+            this.image = Game.instance.assets['www/picture/shipMid.png'];
+            this.frame = 0;
+
+            if(this.y -moveSpeed >= 0){
+                this.y -= moveSpeed;
+            }
+        }
+        else if (Game.instance.input.down) {
+            this.width = Game.instance.assets['www/picture/shipMid.png'].width;
+            this.height = Game.instance.assets['www/picture/shipMid.png'].height/3;
+            this.image = Game.instance.assets['www/picture/shipMid.png'];
+            this.frame = 2;
+
+            if(this.y + moveSpeed <= Game.instance.height - this.height){
+                this.y += moveSpeed;
+            }
+        }
+        else {
+            this.width = Game.instance.assets['www/picture/shipMid.png'].width;
+            this.height = Game.instance.assets['www/picture/shipMid.png'].height/3;
+            this.image = Game.instance.assets['www/picture/shipMid.png'];
+            this.frame = 1;
+        }
     },
 
     getDmg: function (dmg) {
@@ -415,4 +506,3 @@ var Player = enchant.Class.create(enchant.Sprite, {
         });
     }
 });
-
