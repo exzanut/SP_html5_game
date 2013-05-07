@@ -42,19 +42,26 @@ var EnemyShoot = enchant.Class.create(Shoot, {
 var RoundEnShoot = enchant.Class.create(EnemyShoot, {
     initialize: function (x, y,direction) {
         EnemyShoot.call(this, x, y,direction);
-        this.moveSpeed = 8;
-        this.image = Game.instance.assets['www/picture/ball.png'];
-        this.frame = 4;
+        this.moveSpeed = 9;
+        this.image = Game.instance.assets['www/picture/roundShoot.png'];
+        this.frame = 0;
         this.damage=1;
     }
 });
 
+var HomingEnShoot = enchant.Class.create(RoundEnShoot, {
+    initialize: function (x, y) {
+        
+    }
+});
 var LaserEnShoot = enchant.Class.create(EnemyShoot, {
     initialize: function (x, y) {
         EnemyShoot.call(this, x, y,3*Math.PI/2);
         this.moveSpeed = 12;
-        this.image = Game.instance.assets['www/picture/enemy.png'];
-        this.frame = 60;
+        this.image = Game.instance.assets['www/picture/laser.png'];
+        this.width=8;
+        this.height=16;
+        this.frame = 0;
         this.damage=2;
     }
 });
