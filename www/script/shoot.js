@@ -140,8 +140,7 @@ var BaseShootExplosion = Class.create(enchant.Sprite, {
         this.frame = 0;
 
         this.addEventListener('enterframe', function () {
-            console.log("Destroy!");
-            if(Game.instance.fps%2 ==0){
+            if(Game.instance.frame%2 ==0){
                 this.frame++;
                 if(this.frame == 5){
                     this.remove();
@@ -178,6 +177,43 @@ var RocketPlayerShoot = enchant.Class.create(PlayerShoot, {
 
     move: function () {
         this.x += this.moveSpeed * Math.cos(this.direction+Math.sin(this.age/2)/25);
+        this.y -= this.moveSpeed * Math.sin(this.direction);
+    },
+
+    destroyShoot: function () {
+        this.moveSpeed = 0;
+        this.damage = 0;
+        Game.instance.scGame.addChild(new BaseShootExplosion(this.x, this.y));
+        this.remove();
+    }
+});
+
+
+var CoverPlayerShoot = enchant.Class.create(PlayerShoot, {
+    initialize: function (x, y, direction, age) {
+        PlayerShoot.call(this, x, y, direction);
+        var game = Game.instance;
+        this.width = Game.instance.assets['www/picture/coverShoot.png'].width;
+        this.height = Game.instance.assets['www/picture/coverShoot.png'].height;
+        this.image = game.assets['www/picture/coverShoot.png'];
+        this.sound = game.assets['www/sound/baseShoot.wav'];
+        if(Game.instance.soundTurn == true) this.sound.clone().play();
+        this.frame = 0;
+        this.moveSpeed = 12;
+        this.damage = 1;
+
+        this.x += Game.instance.playerShip.width/2 * Math.cos(this.direction);
+        this.y -= Game.instance.playerShip.width/2 * Math.sin(this.direction);
+
+        this.addEventListener('enterframe', function () {
+            if(age-- == 0) {
+                this.destroyShoot();
+            }
+        });
+    },
+
+    move: function () {
+        this.x += this.moveSpeed * Math.cos(this.direction);
         this.y -= this.moveSpeed * Math.sin(this.direction);
     },
 

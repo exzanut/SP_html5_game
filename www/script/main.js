@@ -7,8 +7,6 @@ window.onload = function () {
     game.ratio = game.width/500;
 
     //image
-    game.preload('www/picture/spaceship.png');
-    game.preload('www/picture/ball.png');
     game.preload('www/picture/enemy.png');
     game.preload('www/picture/mine.png');
     game.preload('www/picture/laser.png');
@@ -37,6 +35,8 @@ window.onload = function () {
     game.preload('www/picture/shipLeft.png');
     game.preload('www/picture/baseShoot.png');
     game.preload('www/picture/rocketShoot.png');
+    game.preload('www/picture/coverShoot.png');
+    game.preload('www/picture/shipExplosion.png');
 
     //sound
     game.preload('www/sound/shipExplosion.wav');
@@ -185,6 +185,7 @@ var SceneMenu = Class.create(enchant.Scene, {
                     this.addChild(imgResume);
                     game.scGame = new SceneGame();
                     game.score = 0;
+                    game.playerShip.aLive = true;
                     game.pushScene(game.scGame);
                 }
 
@@ -234,12 +235,12 @@ var SceneGame = Class.create(enchant.Scene, {
         var game = Game.instance;
         game.scoreLabel = new ScoreLabel(8, 8);
 
-        var barHP = new Bar(Game.instance.width - (20+20), Game.instance.height/2 - (50));
-        var hpFrag = new BarFragment(Game.instance.width - (20+20)+1, 1);
+        var barHP = new Bar(Game.instance.width - (20), Game.instance.height/2 - (50));
+        var hpFrag = new BarFragment(Game.instance.width - (20)+1, 1);
         hpFrag.backgroundColor = 'darkred';
 
-        var barMP = new Bar(Game.instance.width - (20), Game.instance.height/2 - (50));
-        var mpFrag = new BarFragment(Game.instance.width - (20)+1, 1);
+        var barMP = new Bar(Game.instance.width - (20+20), Game.instance.height/2 - (50));
+        var mpFrag = new BarFragment(Game.instance.width - (20+20)+1, 1);
         mpFrag.backgroundColor = 'darkblue';
 
         var player = new Player(game.gameW/2, game.height-100);
@@ -323,6 +324,8 @@ var Player = enchant.Class.create(enchant.Sprite, {
         this.x = x;
         this.y = y;
         this.gearScore = 0;
+        this.moveSpeed = 10;
+        this.aLive;
 
         //soucasti lodi
         this.hull = new Hull();
@@ -334,25 +337,54 @@ var Player = enchant.Class.create(enchant.Sprite, {
         this.coverS;
 
         this.addEventListener('enterframe', function (e) {
-            this.move(10);
-            if(game.frame%5 == 0){
-                this.baseS = new BasePlayerShoot(this.x + this.width/2 - 2.5, this.y - this.height/2, Math.PI/2);
-            }
-
-            if(game.frame%20 == 0){
-                this.rocketS = new RocketPlayerShoot(this.x-8, this.y-16, Math.PI/2);
+            if(this.aLive == true) {
+                this.move(Math.sqrt(Game.instance.ratio)*this.moveSpeed);
+                this.enemyColision();
+                this.fire();
+                this.update();
             }
 
             if(Game.instance.soundTurn == true) game.bgrndSound.play();
-            if(Game.instance.frame % Game.instance.fps == 0){
-                if(this.generator.maxEnergyCap >= (this.generator.actEnergy + this.generator.energyPerSec)){
-                    this.generator.actEnergy += this.generator.energyPerSec;
-                }
-                else this.generator.actEnergy = this.generator.maxEnergyCap;
-            }
-
-            game.scoreLabel.score = game.score;
         });
+    },
+
+    update: function () {
+        if(Game.instance.frame % Game.instance.fps == 0){
+            if(this.generator.maxEnergyCap >= (this.generator.actEnergy + this.generator.energyPerSec)){
+                this.generator.actEnergy += this.generator.energyPerSec;
+            }
+            else this.generator.actEnergy = this.generator.maxEnergyCap;
+        }
+
+        Game.instance.scoreLabel.score = Game.instance.score;
+    },
+
+    fire: function () {
+        if(Game.instance.frame%5 == 0){
+            this.baseS = new BasePlayerShoot
+                (this.x + this.width/2 - 4, this.y - this.height/2, Math.PI/2);
+        }
+
+        if(Game.instance.frame%20 == 0){
+            this.rocketS = new RocketPlayerShoot
+                (this.x-8, this.y-16, Math.PI/2);
+        }
+
+        if(Game.instance.frame%10 == 0){
+            this.coverS = new CoverPlayerShoot
+                (this.x + this.width/2, this.y + this.height/2, (((Math.random()*360)%360)*Math.PI)/180, 5);
+        }
+    },
+
+    enemyColision: function () {
+        for(var i =0;i<Game.instance.enemies.childNodes.length;i++){
+            var enemy = Game.instance.enemies.childNodes[i];
+            if (this.intersect(enemy)){
+                this.getDmg(enemy.HP);
+                enemy.getDmg(100*Game.instance.frame);
+                enemy.remove();
+            }
+        }
     },
 
     move: function (moveSpeed) {
@@ -366,6 +398,12 @@ var Player = enchant.Class.create(enchant.Sprite, {
                 this.x -= moveSpeed;
                 this.y -= moveSpeed;
             }
+            else if(this.x - moveSpeed >= 0){
+                this.x -= moveSpeed;
+            }
+            else if(this.y - moveSpeed >= 0){
+                this.y -= moveSpeed;
+            }
         }
         else if (Game.instance.input.left && Game.instance.input.down) {
             this.width = Game.instance.assets['www/picture/shipLeft.png'].width;
@@ -375,6 +413,12 @@ var Player = enchant.Class.create(enchant.Sprite, {
 
             if(this.x - moveSpeed >= 0 && this.y + moveSpeed <= Game.instance.height - this.height){
                 this.x -= moveSpeed;
+                this.y += moveSpeed;
+            }
+            else if(this.x - moveSpeed >= 0){
+                this.x -= moveSpeed;
+            }
+            else if(this.y + moveSpeed <= Game.instance.height - this.height){
                 this.y += moveSpeed;
             }
         }
@@ -398,6 +442,12 @@ var Player = enchant.Class.create(enchant.Sprite, {
                 this.x += moveSpeed;
                 this.y -= moveSpeed;
             }
+            else if(this.x + moveSpeed < Game.instance.gameW - this.width*1.5){
+                this.x += moveSpeed;
+            }
+            else if(this.y -moveSpeed >= 0){
+                this.y -= moveSpeed;
+            }
         }
         else if (Game.instance.input.right && Game.instance.input.down) {
             this.width = Game.instance.assets['www/picture/shipRight.png'].width;
@@ -407,6 +457,12 @@ var Player = enchant.Class.create(enchant.Sprite, {
 
             if(this.x + moveSpeed < Game.instance.gameW - this.width*1.5 && this.y + moveSpeed <= Game.instance.height - this.height){
                 this.x += moveSpeed;
+                this.y += moveSpeed;
+            }
+            else if(this.x + moveSpeed < Game.instance.gameW - this.width*1.5){
+                this.x += moveSpeed;
+            }
+            else if(this.y + moveSpeed <= Game.instance.height - this.height){
                 this.y += moveSpeed;
             }
         }
@@ -454,11 +510,11 @@ var Player = enchant.Class.create(enchant.Sprite, {
             if(dmg > this.shield.dmgAbsortion){
                 dmg -= this.shield.dmgAbsortion;
                 if(this.hull.actDmg > dmg*this.hull.dmgReduction){
-                    //console.log("Energy, dmg: " + dmg*this.hull.dmgReduction);
                     this.hull.actDmg -= dmg*this.hull.dmgReduction;
                 }
                 else{
                     this.hull.actDmg = 0;
+                    this.aLive = false;
                     //zavolani efektu pro zniceni - vlozit
                     this.destroyShip();
                     //Game.instance.stop();
@@ -472,11 +528,11 @@ var Player = enchant.Class.create(enchant.Sprite, {
             if(dmg > (this.generator.actEnergy/this.shield.energyConsumption)*this.shield.dmgAbsortion){
                 dmg -= (this.generator.actEnergy/this.shield.energyConsumption)*this.shield.dmgAbsortion;
                 if(this.hull.actDmg > dmg*this.hull.dmgReduction){
-                    //console.log("No energy, dmg: " + dmg*this.hull.dmgReduction);
                     this.hull.actDmg -= dmg*this.hull.dmgReduction;
                 }
                 else{
                     this.hull.actDmg = 0;
+                    this.aLive = false;
                     //zavolani efektu pro zniceni - vlozit
                     this.destroyShip();
                     //Game.instance.stop();
@@ -490,15 +546,18 @@ var Player = enchant.Class.create(enchant.Sprite, {
     },
 
     destroyShip: function () {
-        this.image = Game.instance.assets['www/picture/shoot_effect.png'];
+        this.width = Game.instance.assets['www/picture/shipExplosion.png'].width/6;
+        this.height = Game.instance.assets['www/picture/shipExplosion.png'].height;
+        this.image = Game.instance.assets['www/picture/shipExplosion.png'];
         this.sound = Game.instance.assets['www/sound/shipExplosion.wav'];
         if(Game.instance.soundTurn == true) this.sound.play();
         this.frame = 0;
 
         this.addEventListener('enterframe', function () {
-            if(Game.instance.fps%5 ==0){
+            if(Game.instance.frame%2 == 0){
                 this.frame++;
                 if(this.frame == 5){
+                    //Game.instance.playerShip = null;
                     Game.instance.scGame.removeChild(this);
                     delete this;
                 }
