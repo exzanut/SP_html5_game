@@ -1,6 +1,6 @@
 var Shoot = enchant.Class.create(enchant.Sprite, {
     initialize: function (x, y, direction) {
-        enchant.Sprite.call(this, 16, 16);
+        enchant.Sprite.call(this, 12, 12);
         var game = Game.instance;
         this.x = x;
         this.y = y;
@@ -39,6 +39,9 @@ var EnemyShoot = enchant.Class.create(Shoot, {
                 Game.instance.playerShip.getDmg(this.damage);
                 this.remove();
             }
+            if(Game.instance.playerShip.coverS.intersect(this)) {
+                this.remove();
+            }
         });
     }
 });
@@ -53,11 +56,35 @@ var RoundEnShoot = enchant.Class.create(EnemyShoot, {
     }
 });
 
-var HomingEnShoot = enchant.Class.create(RoundEnShoot, {
+var AimEnShoot = enchant.Class.create(RoundEnShoot, {
     initialize: function (x, y) {
-        
+        var dir = this.calcDirection(x,y);
+        RoundEnShoot.call(this,x,y,dir);
+    },
+    calcDirection: function(x,y){
+        var difX = (Game.instance.playerShip.x-x-8);
+        var difY = (Game.instance.playerShip.y-y-8);
+        var scale = Math.sqrt(difX*difX+difY*difY);
+        difX/=scale;
+        difY/=scale;
+        return Math.acos(-difX)+Math.PI;
     }
 });
+
+var HomingEnShoot = enchant.Class.create(AimEnShoot, {
+    initialize: function (x, y) {
+        AimEnShoot.call(this,x,y);
+
+         this.addEventListener('enterframe', function () {
+            if (this.age%8==0){
+               this.direction += this.calcDirection(this.x,this.y); 
+               this.direction/=2;
+            }
+            
+        });
+    }
+});
+
 var LaserEnShoot = enchant.Class.create(EnemyShoot, {
     initialize: function (x, y) {
         EnemyShoot.call(this, x, y,3*Math.PI/2);
