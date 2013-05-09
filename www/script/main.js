@@ -57,6 +57,7 @@ window.onload = function () {
 
         game.enemyCnt=0;
         game.gameW = game.width;    //sirka herni plochy
+        game.shipUpgrade = new UpgradeList();
         game.playerShip = new Player();
         game.score = 0;
         game.bgrndSound = game.assets['www/sound/background.wav'];
@@ -194,6 +195,10 @@ var SceneMenu = Class.create(enchant.Scene, {
                     imgResume.visible = true;
                     game.popScene();
                 }
+                else if(imgOkraj.x == imgShop.x && imgOkraj.y == imgShop.y){
+                    game.scShop = new SceneShop();
+                    game.pushScene(game.scShop);
+                }
             }
 
 
@@ -204,19 +209,6 @@ var SceneMenu = Class.create(enchant.Scene, {
         this.addChild(imgGuide);
         this.addChild(imgOkraj);
         this.addChild(sound);
-    }
-});
-
-var SceneShop = Class.create(enchant.Scene, {
-    // The shop game scene.
-    initialize: function() {
-        // Call superclass constructor
-        enchant.Scene.apply(this);
-
-
-
-        this.addEventListener('enterframe', function () {
-        });
     }
 });
 
@@ -285,6 +277,56 @@ var SceneGame = Class.create(enchant.Scene, {
     }
 });
 
+var SceneShop = Class.create(enchant.Scene, {
+    // The shop game scene.
+    initialize: function() {
+        // Call superclass constructor
+        enchant.Scene.apply(this);
+        this.backgroundColor = 'black';
+
+        var player = new Player(Game.instance.gameW/2 - Game.instance.playerShip.width/2, Game.instance.height/2);
+        //player = Game.instance.playerShip;
+
+        this.addEventListener('enterframe', function () {
+        });
+
+        this.addChild(player);
+    }
+});
+
+var UpgradeList = Class.create({
+    // The shop game scene.
+    initialize: function() {
+
+        this.moveSpeed = 5;
+
+        this.hull_dmgReduction = 1; //%
+        this.hull_maxDmgCap = 10;   //hp
+
+        this.shield_dmgAbsortion = 1;
+        this.shield_energyConsumption = 1; //%
+
+        this.generator_energyPerSec = 0.1;
+        this.generator_maxEnergyCap = 10;
+
+        this.baseS_damage = 1;
+        this.baseS_projectiles = 1;
+        this.baseS_moveSpeed = 20;
+        this.baseS_cooldown = 20;
+
+        this.rocketS_damage = 5;
+        this.rocketS_moveSpeed = 15;
+        this.rocketS_cooldown = 100;
+
+        this.coverS_damage = 1;
+        this.coverS_projectiles = 1;
+        this.coverS_moveSpeed = 12;
+        this.coverS_cooldown = 30;
+        this.coverS_age = 3;
+
+    }
+});
+
 var Bar = enchant.Class.create(enchant.Sprite, {
     initialize: function (x, y) {
         var game = Game.instance;
@@ -325,7 +367,7 @@ var Player = enchant.Class.create(enchant.Sprite, {
         this.x = x;
         this.y = y;
         this.gearScore = 0;
-        this.moveSpeed = 10;
+        this.moveSpeed = Game.instance.shipUpgrade.moveSpeed;
         this.aLive;
 
         //soucasti lodi
@@ -335,11 +377,11 @@ var Player = enchant.Class.create(enchant.Sprite, {
 
         this.baseS;
         this.rocketS;
-        this.coverS;
+        this.coverS = new Group();
 
         this.addEventListener('enterframe', function (e) {
             if(this.aLive == true) {
-                this.move(Math.sqrt(Game.instance.ratio)*this.moveSpeed);
+                this.move(/*Math.sqrt(Game.instance.ratio)*this.moveSpeed*/);
                 this.enemyColision();
                 this.fire();
                 this.update();
@@ -361,19 +403,27 @@ var Player = enchant.Class.create(enchant.Sprite, {
     },
 
     fire: function () {
-        if(Game.instance.frame%5 == 0){
-            this.baseS = new BasePlayerShoot
-                (this.x + this.width/2 - 4, this.y - this.height/2, Math.PI/2);
+        if(Game.instance.frame%Game.instance.shipUpgrade.baseS_cooldown == 0){
+            for(var i=1; i <= Game.instance.shipUpgrade.baseS_projectiles; i++){
+                this.baseS = new BasePlayerShoot
+                (this.x + (Game.instance.playerShip.width/Game.instance.shipUpgrade.baseS_projectiles)*i -
+                    (Game.instance.playerShip.width/(Game.instance.shipUpgrade.baseS_projectiles))/2 - 4, this.y - this.height/2, Math.PI/2);
+            }
+
+            if(Game.instance.soundTurn == true) Game.instance.playerShip.baseS.sound.clone().play();
         }
 
-        if(Game.instance.frame%20 == 0){
+        if(Game.instance.frame%Game.instance.shipUpgrade.rocketS_cooldown == 0){
             this.rocketS = new RocketPlayerShoot
-                (this.x-8, this.y-16, Math.PI/2);
+                (this.x - 6, this.y + this.height/3, Math.PI/2);
         }
 
-        if(Game.instance.frame%10 == 0){
-            this.coverS = new CoverPlayerShoot
-                (this.x + this.width/2, this.y + this.height/2, (((Math.random()*360)%360)*Math.PI)/180, 5);
+        if(Game.instance.frame%Game.instance.shipUpgrade.coverS_cooldown == 0){
+            for(var i=1; i <= Game.instance.shipUpgrade.coverS_projectiles; i++){
+                this.coverS.addChild(new CoverPlayerShoot
+                    (this.x + this.width/2, this.y + this.height/2, (((Math.random()*360)%360)*Math.PI)/180, Game.instance.shipUpgrade.coverS_age));
+            }
+
         }
     },
 
@@ -388,22 +438,35 @@ var Player = enchant.Class.create(enchant.Sprite, {
         }
     },
 
-    move: function (moveSpeed) {
+    move: function () {
+        if(
+            Game.instance.input.left ||
+            Game.instance.input.right ||
+            Game.instance.input.up ||
+            Game.instance.input.down
+            ) {
+            if(this.moveSpeed < Math.sqrt(Game.instance.ratio)*Game.instance.shipUpgrade.moveSpeed) {
+                //console.log("Speed:" + this.moveSpeed);
+                this.moveSpeed += 1.5;
+            }
+        }
+        else this.moveSpeed = 1;
+
         if (Game.instance.input.left && Game.instance.input.up) {
             this.width = Game.instance.assets['www/picture/shipLeft.png'].width;
             this.height = Game.instance.assets['www/picture/shipLeft.png'].height/3;
             this.image = Game.instance.assets['www/picture/shipLeft.png'];
             this.frame = 0;
 
-            if(this.x - moveSpeed >= 0 && this.y - moveSpeed >= 0){
-                this.x -= moveSpeed;
-                this.y -= moveSpeed;
+            if(this.x - this.moveSpeed >= 0 && this.y - this.moveSpeed >= 0){
+                this.x -= this.moveSpeed;
+                this.y -= this.moveSpeed;
             }
-            else if(this.x - moveSpeed >= 0){
-                this.x -= moveSpeed;
+            else if(this.x - this.moveSpeed >= 0){
+                this.x -= this.moveSpeed;
             }
-            else if(this.y - moveSpeed >= 0){
-                this.y -= moveSpeed;
+            else if(this.y - this.moveSpeed >= 0){
+                this.y -= this.moveSpeed;
             }
         }
         else if (Game.instance.input.left && Game.instance.input.down) {
@@ -412,15 +475,15 @@ var Player = enchant.Class.create(enchant.Sprite, {
             this.image = Game.instance.assets['www/picture/shipLeft.png'];
             this.frame = 2;
 
-            if(this.x - moveSpeed >= 0 && this.y + moveSpeed <= Game.instance.height - this.height){
-                this.x -= moveSpeed;
-                this.y += moveSpeed;
+            if(this.x - this.moveSpeed >= 0 && this.y + this.moveSpeed <= Game.instance.height - this.height){
+                this.x -= this.moveSpeed;
+                this.y += this.moveSpeed;
             }
-            else if(this.x - moveSpeed >= 0){
-                this.x -= moveSpeed;
+            else if(this.x - this.moveSpeed >= 0){
+                this.x -= this.moveSpeed;
             }
-            else if(this.y + moveSpeed <= Game.instance.height - this.height){
-                this.y += moveSpeed;
+            else if(this.y + this.moveSpeed <= Game.instance.height - this.height){
+                this.y += this.moveSpeed;
             }
         }
         else if (Game.instance.input.left) {
@@ -429,8 +492,8 @@ var Player = enchant.Class.create(enchant.Sprite, {
             this.image = Game.instance.assets['www/picture/shipLeft.png'];
             this.frame = 1;
 
-            if(this.x - moveSpeed >= 0){
-                this.x -= moveSpeed;
+            if(this.x - this.moveSpeed >= 0){
+                this.x -= this.moveSpeed;
             }
         }
         else if (Game.instance.input.right && Game.instance.input.up) {
@@ -439,15 +502,15 @@ var Player = enchant.Class.create(enchant.Sprite, {
             this.image = Game.instance.assets['www/picture/shipRight.png'];
             this.frame = 0;
 
-            if(this.x + moveSpeed < Game.instance.gameW - this.width*1.5 && this.y -moveSpeed >= 0){
-                this.x += moveSpeed;
-                this.y -= moveSpeed;
+            if(this.x + this.moveSpeed < Game.instance.gameW - this.width*1.5 && this.y -this.moveSpeed >= 0){
+                this.x += this.moveSpeed;
+                this.y -= this.moveSpeed;
             }
-            else if(this.x + moveSpeed < Game.instance.gameW - this.width*1.5){
-                this.x += moveSpeed;
+            else if(this.x + this.moveSpeed < Game.instance.gameW - this.width*1.5){
+                this.x += this.moveSpeed;
             }
-            else if(this.y -moveSpeed >= 0){
-                this.y -= moveSpeed;
+            else if(this.y -this.moveSpeed >= 0){
+                this.y -= this.moveSpeed;
             }
         }
         else if (Game.instance.input.right && Game.instance.input.down) {
@@ -456,15 +519,15 @@ var Player = enchant.Class.create(enchant.Sprite, {
             this.image = Game.instance.assets['www/picture/shipRight.png'];
             this.frame = 2;
 
-            if(this.x + moveSpeed < Game.instance.gameW - this.width*1.5 && this.y + moveSpeed <= Game.instance.height - this.height){
-                this.x += moveSpeed;
-                this.y += moveSpeed;
+            if(this.x + this.moveSpeed < Game.instance.gameW - this.width*1.5 && this.y + this.moveSpeed <= Game.instance.height - this.height){
+                this.x += this.moveSpeed;
+                this.y += this.moveSpeed;
             }
-            else if(this.x + moveSpeed < Game.instance.gameW - this.width*1.5){
-                this.x += moveSpeed;
+            else if(this.x + this.moveSpeed < Game.instance.gameW - this.width*1.5){
+                this.x += this.moveSpeed;
             }
-            else if(this.y + moveSpeed <= Game.instance.height - this.height){
-                this.y += moveSpeed;
+            else if(this.y + this.moveSpeed <= Game.instance.height - this.height){
+                this.y += this.moveSpeed;
             }
         }
         else if (Game.instance.input.right) {
@@ -473,8 +536,8 @@ var Player = enchant.Class.create(enchant.Sprite, {
             this.image = Game.instance.assets['www/picture/shipRight.png'];
             this.frame = 1;
 
-            if(this.x + moveSpeed < Game.instance.gameW - this.width*1.5){
-                this.x += moveSpeed;
+            if(this.x + this.moveSpeed < Game.instance.gameW - this.width*1.5){
+                this.x += this.moveSpeed;
             }
         }
         else if (Game.instance.input.up) {
@@ -483,8 +546,8 @@ var Player = enchant.Class.create(enchant.Sprite, {
             this.image = Game.instance.assets['www/picture/shipMid.png'];
             this.frame = 0;
 
-            if(this.y -moveSpeed >= 0){
-                this.y -= moveSpeed;
+            if(this.y -this.moveSpeed >= 0){
+                this.y -= this.moveSpeed;
             }
         }
         else if (Game.instance.input.down) {
@@ -493,8 +556,8 @@ var Player = enchant.Class.create(enchant.Sprite, {
             this.image = Game.instance.assets['www/picture/shipMid.png'];
             this.frame = 2;
 
-            if(this.y + moveSpeed <= Game.instance.height - this.height){
-                this.y += moveSpeed;
+            if(this.y + this.moveSpeed <= Game.instance.height - this.height){
+                this.y += this.moveSpeed;
             }
         }
         else {
