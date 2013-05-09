@@ -13,6 +13,7 @@ window.onload = function () {
     game.preload('www/picture/mine.png');
     game.preload('www/picture/laser.png');
     game.preload('www/picture/roundShoot.png');
+    game.preload('www/picture/asteroid.png')
     game.preload('www/picture/enemyShipSmaller.png');
     game.preload('www/picture/enemyShipSmall.png');
     game.preload('www/picture/enemyShipMedium.png');
