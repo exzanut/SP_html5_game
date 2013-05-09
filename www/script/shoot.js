@@ -123,6 +123,36 @@ var Explosion = enchant.Class.create(enchant.Sprite, {
     }
 });
 
+var Star = enchant.Class.create(enchant.Sprite, {
+    initialize: function (x, y,value) {
+        enchant.Sprite.call(this, 16, 16);
+        this.x = x;
+        this.y = y;
+        console.log("star");
+        this.image=Game.instance.assets['www/picture/star.png'];
+        this.frame=0;
+        this.value=value;
+        this.ttl=120;
+
+        this.addEventListener('enterframe', function () {
+            this.ttl--;
+            if(this.ttl==0){
+                this.remove();
+            }
+            if(Game.instance.playerShip.intersect(this)) {
+                Game.instance.currency+=this.value;
+                this.remove();
+            }
+            this.tl.moveBy(5,12,10).moveBy(-5,12,10);
+        });
+        Game.instance.scGame.addChild(this);
+    },
+    remove: function () {
+        Game.instance.scGame.removeChild(this);
+        delete this;
+    }
+});
+
 var PlayerShoot = enchant.Class.create(Shoot, {
     initialize: function (x, y,direction) {
         Shoot.call(this, x, y,direction);
