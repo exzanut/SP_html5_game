@@ -12,6 +12,7 @@ window.onload = function () {
     game.preload('www/picture/laser.png');
     game.preload('www/picture/roundShoot.png');
     game.preload('www/picture/asteroid.png')
+    game.preload('www/picture/star.png');
     game.preload('www/picture/enemyShipSmaller.png');
     game.preload('www/picture/enemyShipSmall.png');
     game.preload('www/picture/enemyShipMedium.png');
@@ -27,6 +28,7 @@ window.onload = function () {
     game.preload('www/picture/spaceBG.png');
     game.preload('www/picture/explosion.png');
     game.preload('www/picture/bossS.png');
+    game.preload('www/picture/boss2.png');
     game.preload('www/picture/shoot_effect.png');
     game.preload('www/picture/soundOn.png');
     game.preload('www/picture/soundOff.png');
@@ -235,6 +237,7 @@ var SceneGame = Class.create(enchant.Scene, {
 
         var game = Game.instance;
         game.scoreLabel = new ScoreLabel(8, 8);
+        game.currency=0;
 
         var barHP = new Bar(Game.instance.width - (20), Game.instance.height/2 - (50));
         var hpFrag = new BarFragment(Game.instance.width - (20)+1, 1);
@@ -242,7 +245,7 @@ var SceneGame = Class.create(enchant.Scene, {
 
         var barMP = new Bar(Game.instance.width - (20+20), Game.instance.height/2 - (50));
         var mpFrag = new BarFragment(Game.instance.width - (20+20)+1, 1);
-        mpFrag.backgroundColor = 'darkblue';
+        mpFrag.backgroundColor = 'orange';
 
         var player = new Player(game.gameW/2, game.height-100);
         var enemySpawner = new EnemySpawner();
