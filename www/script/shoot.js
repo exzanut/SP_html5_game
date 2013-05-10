@@ -128,11 +128,10 @@ var Star = enchant.Class.create(enchant.Sprite, {
         enchant.Sprite.call(this, 16, 16);
         this.x = x;
         this.y = y;
-        console.log("star");
         this.image=Game.instance.assets['www/picture/star.png'];
         this.frame=0;
         this.value=value;
-        this.ttl=120;
+        this.ttl=150;
 
         this.addEventListener('enterframe', function () {
             this.ttl--;

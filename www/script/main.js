@@ -13,16 +13,12 @@ window.onload = function () {
     game.preload('www/picture/roundShoot.png');
     game.preload('www/picture/asteroid.png')
     game.preload('www/picture/star.png');
+    game.preload('www/picture/game_over.png');
     game.preload('www/picture/enemyShipSmaller.png');
     game.preload('www/picture/enemyShipSmall.png');
     game.preload('www/picture/enemyShipMedium.png');
     game.preload('www/picture/enemyShipLarge.png');
     game.preload('www/picture/enemyShipLarger.png');
-    game.preload('www/picture/resume.png');
-    game.preload('www/picture/play.png');
-    game.preload('www/picture/shop.png');
-    game.preload('www/picture/guide.png');
-    game.preload('www/picture/okraj.png');
     game.preload('www/picture/bar.png');
     game.preload('www/picture/barFragment.png');
     game.preload('www/picture/spaceBG.png');
@@ -57,7 +53,6 @@ window.onload = function () {
 
         var gameRun = false;
 
-        game.enemyCnt=0;
         game.gameW = game.width;    //sirka herni plochy
         game.shipUpgrade = new UpgradeList();
         game.playerShip = new Player();
@@ -82,34 +77,53 @@ var SceneMenu = Class.create(enchant.Scene, {
         // Call superclass constructor
         Scene.apply(this);
 
-        this.backgroundColor = 'grey';
+        //this.backgroundColor = 'grey';
         var game = Game.instance;
 
-        var imgResume = new Sprite(100, 40);
-        imgResume.image = game.assets['www/picture/resume.png'];
-        imgResume.x = game.width/2-imgResume.width/2;
-        imgResume.y = game.height/2+50;
-        imgResume.visible = false;
+        this.selectedIndex=0;
+        this.buttons = new Group();
+        this.cdChange=0;
 
-        var imgPlay = new Sprite(100, 40);
-        imgPlay.image = game.assets['www/picture/play.png'];
+        //background
+        var bgImg= new Sprite(Game.instance.width*2,Game.instance.height*2);
+        bgImg.image=Game.instance.assets['www/picture/spaceBG.png'];
+        bgImg.x=-Game.instance.width/2;
+        bgImg.y=-Game.instance.height/2;
+        bgImg.tl.moveBy(0,140,70).moveBy(-140,0,70).moveBy(0,-140,70).moveBy(140,0,70).loop();
+        this.addChild(bgImg);
+
+        var imgPlay = new MutableText(100, 40);
+        //imgPlay.image = game.assets['www/picture/play.png'];
+        imgPlay.text = "PLAY";
         imgPlay.x = game.width/2-imgPlay.width/2;
         imgPlay.y = game.height/2+100;
+        imgPlay.resume=false;
+        imgPlay.addEventListener('touchend', function () {
+            if(game.scMenu.buttons.childNodes[0].resume==false){
+                game.scMenu.setNewGame();
+            }else{
+                game.popScene();
+            }
+        });
+        imgPlay.tl.scaleTo(1.5,6);
+        this.buttons.addChild(imgPlay);
 
-        var imgShop = new Sprite(100, 40);
-        imgShop.image = game.assets['www/picture/shop.png'];
-        imgShop.x = game.width/2-imgShop.width/2;
-        imgShop.y = game.height/2+150;
+        var imgArmory = new MutableText(100, 40);
+        //imgShop.image = game.assets['www/picture/shop.png'];
+        imgArmory.text = "ARMORY";
+        imgArmory.x = game.width/2-imgArmory.width/2;
+        imgArmory.y = game.height/2+150;
+        imgArmory.addEventListener('touchend', function () {
+            game.pushScene(game.scShop);
+        });
+        this.buttons.addChild(imgArmory);
 
-        var imgGuide = new Sprite(100, 40);
-        imgGuide.image = game.assets['www/picture/guide.png'];
+        var imgGuide = new MutableText(100, 40);
+        //imgGuide.image = game.assets['www/picture/guide.png'];
+        imgGuide.text = "GUIDE";
         imgGuide.x = game.width/2-imgGuide.width/2;
         imgGuide.y = game.height/2+200;
-
-        var imgOkraj = new Sprite(100, 40);
-        imgOkraj.image = game.assets['www/picture/okraj.png'];
-        imgOkraj.x = imgPlay.x;
-        imgOkraj.y = imgPlay.y;
+        this.buttons.addChild(imgGuide);
 
         var sound = new Sprite(20, 20);
         if(game.soundTurn == true) sound.image = game.assets['www/picture/soundOn.png'];
@@ -130,87 +144,57 @@ var SceneMenu = Class.create(enchant.Scene, {
             }
         });
 
-        /*imgOkraj.addEventListener('touchend', function () {
-            if(imgOkraj.x == imgPlay.x && imgOkraj.y == imgPlay.y){
-                game.pushScene(game.scGame);
-            }
-        });*/
 
         this.addEventListener('enterframe', function () {
-            if(game.input.down && game.frame%2 == 0){
-                if(imgOkraj.x == imgResume.x && imgOkraj.y == imgResume.y && imgResume.visible == true){
-                    this.removeChild(imgOkraj);
-                    imgOkraj.x = imgPlay.x;
-                    imgOkraj.y = imgPlay.y;
-                    this.addChild(imgOkraj);
-                }
-
-                else if(imgOkraj.x == imgPlay.x && imgOkraj.y == imgPlay.y){
-                    this.removeChild(imgOkraj);
-                    imgOkraj.x = imgShop.x;
-                    imgOkraj.y = imgShop.y;
-                    this.addChild(imgOkraj);
-                }
-
-                else if(imgOkraj.x == imgShop.x && imgOkraj.y == imgShop.y){
-                    this.removeChild(imgOkraj);
-                    imgOkraj.x = imgGuide.x;
-                    imgOkraj.y = imgGuide.y;
-                    this.addChild(imgOkraj);
-                }
+            if(this.cdChange>0)this.cdChange--;
+                         
+            if(game.input.down && this.cdChange==0){
+                this.buttons.childNodes[this.selectedIndex].tl.scaleTo(1,8);
+                this.selectedIndex=(++this.selectedIndex)%3;
+                this.buttons.childNodes[this.selectedIndex].tl.scaleTo(1.5,6);
+                this.cdChange=8;
             }
 
-            if(game.input.up && game.frame%3 == 0){
-                if(imgOkraj.x == imgGuide.x && imgOkraj.y == imgGuide.y){
-                    this.removeChild(imgOkraj);
-                    imgOkraj.x = imgShop.x;
-                    imgOkraj.y = imgShop.y;
-                    this.addChild(imgOkraj);
-                }
-
-                else if(imgOkraj.x == imgShop.x && imgOkraj.y == imgShop.y){
-                    this.removeChild(imgOkraj);
-                    imgOkraj.x = imgPlay.x;
-                    imgOkraj.y = imgPlay.y;
-                    this.addChild(imgOkraj);
-                }
-
-                else if(imgOkraj.x == imgPlay.x && imgOkraj.y == imgPlay.y && imgResume.visible == true){
-                    this.removeChild(imgOkraj);
-                    imgOkraj.x = imgResume.x;
-                    imgOkraj.y = imgResume.y;
-                    this.addChild(imgOkraj);
-                }
+            if(game.input.up && this.cdChange==0){
+                this.buttons.childNodes[this.selectedIndex].tl.scaleTo(1,8);
+                this.selectedIndex=(--this.selectedIndex+3)%3;
+                this.buttons.childNodes[this.selectedIndex].tl.scaleTo(1.5,6);
+                this.cdChange=8;
             }
 
             if(game.input.b){
-                if(imgOkraj.x == imgPlay.x && imgOkraj.y == imgPlay.y){
-                    imgResume.visible = true;
-                    this.addChild(imgResume);
-                    game.scGame = new SceneGame();
-                    game.score = 0;
-                    game.playerShip.aLive = true;
-                    game.pushScene(game.scGame);
-                }
-
-                else if(imgOkraj.x == imgResume.x && imgOkraj.y == imgResume.y){
-                    imgResume.visible = true;
-                    game.popScene();
-                }
-                else if(imgOkraj.x == imgShop.x && imgOkraj.y == imgShop.y){
-                    game.scShop = new SceneShop();
-                    game.pushScene(game.scShop);
+                switch(this.selectedIndex){
+                    case 0:
+                        if(game.scMenu.buttons.childNodes[0].resume==false){
+                            this.setNewGame();
+                        }else{
+                            game.popScene();
+                        }
+                        break;
+                    case 1:
+                        if(game.scMenu.buttons.childNodes[0].resume==true){
+                            game.pushScene(game.scShop);
+                        }
+                        break;
+                    case 2:
+                        //game.pushScene(game.scGuide);
+                        break;        
                 }
             }
-
-
         });
-
-        this.addChild(imgPlay);
-        this.addChild(imgShop);
-        this.addChild(imgGuide);
-        this.addChild(imgOkraj);
+        this.addChild(this.buttons);
         this.addChild(sound);
+    },
+    setNewGame: function() {
+        var game = Game.instance;
+        game.scMenu.buttons.childNodes[0].text = "RESUME"; 
+        game.scMenu.buttons.childNodes[0].x = game.width/2-game.scMenu.buttons.childNodes[0].width/2;
+        game.scMenu.buttons.childNodes[0].resume=true;
+        game.scGame = new SceneGame();
+        game.scShop = new SceneShop();
+        game.score = 0;
+        game.playerShip.aLive = true;
+        game.pushScene(game.scGame);
     }
 });
 
@@ -297,6 +281,35 @@ var SceneShop = Class.create(enchant.Scene, {
     }
 });
 
+var SceneGameOver = Class.create(enchant.Scene, {
+    // The game over game scene.
+    initialize: function() {
+        // Call superclass constructor
+        Scene.apply(this);
+        var game = Game.instance;
+        var gameOverImg = new Sprite(189,97);
+        gameOverImg.image=game.assets['www/picture/game_over.png'];
+        gameOverImg.x = game.gameW/2 - gameOverImg.width/2;
+        gameOverImg.y = game.height/2 - gameOverImg.height/2;
+
+        var finalScore = new MutableText(game.gameW/2,0);
+        finalScore.text = "YOUR SCORE: "+game.score;
+        finalScore.x -= finalScore.width/2;
+        finalScore.y += gameOverImg.y+gameOverImg.height+50;
+        finalScore.scaleX = 1.5;
+        finalScore.scaleY = 1.5;
+        this.addChild(gameOverImg);
+        this.addChild(finalScore);
+        this.addEventListener('enterframe', function () {
+            if(game.input.a){
+                game.popScene();
+                game.popScene();
+                game.onload();
+            }
+        });
+    }
+});
+
 var UpgradeList = Class.create({
     // The shop game scene.
     initialize: function() {
@@ -315,7 +328,7 @@ var UpgradeList = Class.create({
         this.baseS_damage = 1;
         this.baseS_projectiles = 1;
         this.baseS_moveSpeed = 20;
-        this.baseS_cooldown = 20;
+        this.baseS_cooldown = 15;
 
         this.rocketS_damage = 5;
         this.rocketS_moveSpeed = 15;
@@ -435,8 +448,7 @@ var Player = enchant.Class.create(enchant.Sprite, {
             var enemy = Game.instance.enemies.childNodes[i];
             if (this.intersect(enemy)){
                 this.getDmg(enemy.HP);
-                enemy.getDmg(100*Game.instance.frame);
-                enemy.remove();
+                enemy.getDmg("kill");
             }
         }
     },
@@ -627,6 +639,7 @@ var Player = enchant.Class.create(enchant.Sprite, {
                     //Game.instance.playerShip = null;
                     Game.instance.scGame.removeChild(this);
                     delete this;
+                    Game.instance.pushScene(new SceneGameOver());
                 }
             }
         });
