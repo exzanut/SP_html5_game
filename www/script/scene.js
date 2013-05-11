@@ -20,7 +20,6 @@ var SceneMenu = Class.create(enchant.Scene, {
         this.addChild(bgImg);
 
         var imgPlay = new MutableText(100, 40);
-        //imgPlay.image = game.assets['www/picture/play.png'];
         imgPlay.text = "PLAY";
         imgPlay.x = game.width/2-imgPlay.width/2;
         imgPlay.y = game.height/2+100;
@@ -36,7 +35,6 @@ var SceneMenu = Class.create(enchant.Scene, {
         this.buttons.addChild(imgPlay);
 
         var imgArmory = new MutableText(100, 40);
-        //imgShop.image = game.assets['www/picture/shop.png'];
         imgArmory.text = "ARMORY";
         imgArmory.x = game.width/2-imgArmory.width/2;
         imgArmory.y = game.height/2+150;
@@ -46,7 +44,6 @@ var SceneMenu = Class.create(enchant.Scene, {
         this.buttons.addChild(imgArmory);
 
         var imgGuide = new MutableText(100, 40);
-        //imgGuide.image = game.assets['www/picture/guide.png'];
         imgGuide.text = "GUIDE";
         imgGuide.x = game.width/2-imgGuide.width/2;
         imgGuide.y = game.height/2+200;
@@ -141,7 +138,7 @@ var SceneGame = Class.create(enchant.Scene, {
 
         var game = Game.instance;
         game.scoreLabel = new TextLabel(8, 8, "SCORE:");
-        game.armoryPoit=0;
+        game.armoryPoint=0;
 
         var barHP = new Bar(Game.instance.width - (20), Game.instance.height/2 - (50));
         var hpFrag = new BarFragment(Game.instance.width - (20)+1, 1);
