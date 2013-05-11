@@ -68,11 +68,11 @@ var MutableText = enchant.Class.create(enchant.Sprite, {
     }
 });
 
-var ScoreLabel = enchant.Class.create(MutableText, {
+var TextLabel = enchant.Class.create(MutableText, {
 
-    initialize: function(x, y) {
+    initialize: function(x, y, text) {
         MutableText.call(this, 0, 0);
-        switch (arguments.length) {
+        switch (arguments.length - 1) {
             case 2:
                 this.y = y;
                 this.x = x;
@@ -86,7 +86,8 @@ var ScoreLabel = enchant.Class.create(MutableText, {
         this._score = 0;
         this._current = 0;
         this.easing = 2.5;
-        this.text = this.label = 'SCORE:';
+        this.text = this.label = text; //'SCORE:';
+
         this.addEventListener('enterframe', function() {
             if (this.easing === 0) {
                 this.text = this.label + (this._current = this._score);
