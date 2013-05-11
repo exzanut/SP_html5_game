@@ -27,8 +27,14 @@ var SceneMenu = Class.create(enchant.Scene, {
         imgPlay.addEventListener('touchend', function () {
             if(game.scMenu.buttons.childNodes[0].resume==false){
                 game.scMenu.setNewGame();
+                if(Game.instance.soundTurn == true) {
+                    game.bgrndSound.groupSound.childNodes[game.bgrndSound.selectedIndex].play();  
+                }
             }else{
                 game.popScene();
+                if(Game.instance.soundTurn == true) {
+                    game.bgrndSound.groupSound.childNodes[game.bgrndSound.selectedIndex].play(); 
+                }
             }
         });
         imgPlay.tl.scaleTo(1.5,6);
@@ -39,7 +45,9 @@ var SceneMenu = Class.create(enchant.Scene, {
         imgArmory.x = game.width/2-imgArmory.width/2;
         imgArmory.y = game.height/2+150;
         imgArmory.addEventListener('touchend', function () {
-            game.pushScene(game.scShop);
+            if(game.scMenu.buttons.childNodes[0].resume==true){
+                game.pushScene(game.scArmory);
+            }
         });
         this.buttons.addChild(imgArmory);
 
@@ -94,6 +102,9 @@ var SceneMenu = Class.create(enchant.Scene, {
                         }else{
                             game.popScene();
                         }
+                        if(Game.instance.soundTurn == true) {
+                            game.bgrndSound.groupSound.childNodes[game.bgrndSound.selectedIndex].play();
+                        }
                         break;
                     case 1:
                         if(game.scMenu.buttons.childNodes[0].resume==true){
@@ -128,8 +139,6 @@ var SceneGame = Class.create(enchant.Scene, {
     initialize: function() {
         // Call superclass constructor
         Scene.apply(this);
-
-        // this.backgroundColor = 'blue';
         var bgImg = new Sprite(Game.instance.width,Game.instance.height);
         var bgImg2 = new Sprite(Game.instance.width,Game.instance.height);
         bgImg.image=Game.instance.assets['www/picture/spaceBG.png'];
@@ -158,6 +167,7 @@ var SceneGame = Class.create(enchant.Scene, {
         this.addEventListener('enterframe', function () {
             if(game.input.a){
                 game.pushScene(game.scMenu);
+                game.bgrndSound.groupSound.childNodes[game.bgrndSound.selectedIndex].stop();;
             }
 
             hpFrag.height = (game.height/player.hull.maxDmgCap)*player.hull.actDmg-2;
@@ -178,13 +188,14 @@ var SceneGame = Class.create(enchant.Scene, {
         this.addChild(bgImg);
         this.addChild(bgImg2);
         this.addChild(player);
+        this.addChild(enemySpawner);
+        this.addChild(game.enemies);
         this.addChild(barHP);
         this.addChild(hpFrag);
         this.addChild(barMP);
         this.addChild(mpFrag);
-        this.addChild(enemySpawner);
         this.addChild(game.scoreLabel);
-        this.addChild(game.enemies)
+        this.addChild(game.bgrndSound);
 
     }
 });
@@ -797,13 +808,21 @@ var SceneGameOver = Class.create(enchant.Scene, {
         gameOverImg.image=game.assets['www/picture/game_over.png'];
         gameOverImg.x = game.gameW/2 - gameOverImg.width/2;
         gameOverImg.y = game.height/2 - gameOverImg.height/2;
-
+        
         var finalScore = new MutableText(game.gameW/2,0);
         finalScore.text = "YOUR SCORE: "+game.score;
         finalScore.x -= finalScore.width/2;
         finalScore.y += gameOverImg.y+gameOverImg.height+50;
         finalScore.scaleX = 1.5;
         finalScore.scaleY = 1.5;
+
+        if(Game.instance.soundTurn == true) { 
+            this.tl.delay(15).then(function(){
+                var sound = game.assets['www/sound/gameover.wav'];
+                sound.play();
+            });
+        }
+
         this.addChild(gameOverImg);
         this.addChild(finalScore);
         this.addEventListener('enterframe', function () {

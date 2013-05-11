@@ -29,6 +29,7 @@ var EnemySpawner = enchant.Class.create(enchant.Node,{
                     this.bossChance=0;
                     var r = Math.floor(Math.random()*(bossArray.length));
                     bossArray[r].spawnGroup(1); //any number
+                    game.bgrndSound.changeIndex(1);
                     if(progress<4){
                       progress++;
                     }
@@ -156,6 +157,8 @@ var Enemy = enchant.Class.create(enchant.Sprite, {
     getDmg: function (dmg) {
       if(dmg=="kill"){
         dmg=this.HP;
+        var sound = Game.instance.assets['www/sound/shipExplosion.wav'];
+        sound.clone().play();
       }
       this.HP-=dmg;
       if(this.HP<1){
@@ -230,6 +233,8 @@ var Enemy3 = enchant.Class.create(Enemy, {
   getDmg: function (dmg) {
     if(dmg=="kill"){
         dmg=this.HP;
+        var sound = Game.instance.assets['www/sound/shipExplosion.wav'];
+        sound.clone().play();
       }
      this.HP-=dmg;
       if(this.HP<1){
@@ -368,6 +373,7 @@ var Boss = enchant.Class.create(Enemy, {
 
             Game.instance.scGame.removeChild(boss);
             boss.remove();
+            Game.instance.bgrndSound.changeIndex(0);
           }  
         }); 
   },
