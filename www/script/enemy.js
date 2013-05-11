@@ -12,8 +12,8 @@ var EnemySpawner = enchant.Class.create(enchant.Node,{
       groupArray[i++] = new EnemyGroup([[1,0,0],[3,0,14],[1,0,13],[1,0,13]]);
       groupArray[i++] = new EnemyGroup([[2,-50,0],[2,50,0],[5,0,5]]);
       groupArray[i++] = new EnemyGroup([[4,-20,0],[2,25,10],[2,55,5],[4,-50,10]]);
-      groupArray[i++] = new EnemyGroup([[5,-50,0],[2,0,2],[5,50,20]]);
       groupArray[i++] = new EnemyGroup([[4,50,0],[3,0,14],[4,-50,0]]);
+      groupArray[i++] = new EnemyGroup([[5,-50,0],[2,0,2],[5,50,20]]);
       groupArray[i++] = new EnemyGroup([[6,0,0]]);
       groupArray[i++] = new EnemyGroup([[7,0,0],[7,-Game.instance.gameW,10]]);
       groupArray[i++] = new EnemyGroup([[8,0,0]]);
@@ -21,7 +21,7 @@ var EnemySpawner = enchant.Class.create(enchant.Node,{
       bossArray[j++] = new EnemyGroup([[11,0,55]]);
 
       this.addEventListener('enterframe', function (){
-        if(game.frame%(Math.floor((85-2*progress)/(Math.pow(game.ratio,1/4))))==0 && game.boss==false) {
+        if(game.frame%(Math.floor((90-3*progress)/(Math.pow(game.ratio,1/4))))==0 && game.boss==false) {
           var treshold = 10*(Math.sqrt(game.ratio));
             if(this.bossChance>treshold){
                 if((Math.random()*(treshold*2-this.bossChance))<1){
@@ -265,14 +265,14 @@ var Enemy5 = enchant.Class.create(Enemy, {
        
        this.image = Game.instance.assets['www/picture/enemyShipLarge.png'];
        this.frame = 1;
-       this.HP*=4;
+       this.HP*=3.5;
        this.score = Math.floor(this.HP*10);
     },
     shoot: function(){
       if (this.age%35==0){
           new RoundEnShoot(this.x,this.y+this.height/2,5/4*Math.PI);
           new RoundEnShoot(this.x+this.width-16,this.y+this.height/2,7/4*Math.PI);
-      }else if(this.age%25==0){
+      }else if(this.age%30==0){
           new LaserEnShoot(this.x+this.width/2-8,this.y+this.height-4);
       }
 
@@ -392,7 +392,7 @@ var Boss1 = enchant.Class.create(Boss, {
     this.HP*=40;
     this.score = Math.floor(this.HP*10);
     this.tl.moveBy(0,140,50);
-    this.tl.moveBy(this.width/2-(Game.instance.gameW-30)/2,0,40)
+    this.tl.moveBy(this.width/2-(Game.instance.gameW-30)/2,0,60)
   },
   shoot: function () {
     if(this.age%100>35){
@@ -411,7 +411,7 @@ var Boss1 = enchant.Class.create(Boss, {
     }
   }, 
   move: function () { 
-      this.tl.moveBy((Game.instance.gameW-this.width-30),0,100).moveBy(-(Game.instance.gameW-this.width-30),0,100).loop(); //left-right
+      this.tl.moveBy((Game.instance.gameW-this.width-30),0,120).moveBy(-(Game.instance.gameW-this.width-30),0,120).loop(); //left-right
   }
   
 });
@@ -419,8 +419,8 @@ var Boss1 = enchant.Class.create(Boss, {
 var Boss2 = enchant.Class.create(Boss, {
   initialize: function(x,y){
     Boss.call(this,x,y);
-    this.width=199;
-    this.height=231;
+    this.width=169;
+    this.height=224;
     this.image = Game.instance.assets['www/picture/boss2.png'];
     this.frame = 0;
     this.HP*=50;
@@ -439,9 +439,10 @@ var Boss2 = enchant.Class.create(Boss, {
         leftExplosiveShot.addEventListener('enterframe', function (){
           if(leftExplosiveShot.age==14){
             leftExplosiveShot.remove();
-            for(var i=0;i<8;i++){
-              new RoundEnShoot(this.x,this.y,i/4*Math.PI);
+            for(var i=0;i<6;i++){
+              new RoundEnShoot(this.x,this.y,i/3*Math.PI+Math.PI/6);
             }
+            new AimEnShoot(this.x,this.y);
           }
         });
 
@@ -450,9 +451,10 @@ var Boss2 = enchant.Class.create(Boss, {
         rightExplosiveShot.addEventListener('enterframe', function (){
           if(rightExplosiveShot.age==14){
             rightExplosiveShot.remove();
-            for(var i=0;i<8;i++){
-              new RoundEnShoot(this.x,this.y,i/4*Math.PI);
+            for(var i=0;i<6;i++){
+              new RoundEnShoot(this.x,this.y,i/3*Math.PI+Math.PI/6);
             }
+            new AimEnShoot(this.x,this.y);
           }
         });
 
@@ -460,7 +462,7 @@ var Boss2 = enchant.Class.create(Boss, {
     }
   }, 
   move: function () { 
-     this.tl.moveBy(0,140,50).moveBy(0,-140,50);
+     this.tl.moveBy(0,140,50).moveBy(30,30,20).moveBy(-60,0,30).moveBy(30,-30,20).moveBy(0,-140,50);
     }
 });
 

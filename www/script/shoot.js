@@ -128,11 +128,10 @@ var Star = enchant.Class.create(enchant.Sprite, {
         enchant.Sprite.call(this, 16, 16);
         this.x = x;
         this.y = y;
-        console.log("star");
         this.image=Game.instance.assets['www/picture/star.png'];
         this.frame=0;
         this.value=value;
-        this.ttl=120;
+        this.ttl=150;
 
         this.addEventListener('enterframe', function () {
             this.ttl--;
@@ -140,7 +139,11 @@ var Star = enchant.Class.create(enchant.Sprite, {
                 this.remove();
             }
             if(Game.instance.playerShip.intersect(this)) {
-                Game.instance.currency+=this.value;
+                Game.instance.armoryPoint+=this.value;
+                var pickUpText = new MutableText(this.x,this.y);
+                pickUpText.text=this.value+" AP";
+                pickUpText.tl.cue({15:function(){Game.instance.scGame.removeChild(pickUpText)}});
+                Game.instance.scGame.addChild(pickUpText);
                 this.remove();
             }
             this.tl.moveBy(5,12,10).moveBy(-5,12,10);
