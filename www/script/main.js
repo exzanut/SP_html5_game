@@ -55,10 +55,11 @@ window.onload = function () {
 
         var gameRun = false;
 
-        game.gameW = game.width;    //sirka herni plochy
+        game.gameW = game.width; //sirka herni plochy
         game.shipUpgrade = new UpgradeList();
         game.shipUpgradeDefault = new UpgradeList();
         game.playerShip = new Player();
+
         game.score = 0;
         game.armoryPoint = 0;
         game.bgrndSound = game.assets['www/sound/background.wav'];

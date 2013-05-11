@@ -10,7 +10,7 @@ var SceneMenu = Class.create(enchant.Scene, {
         this.selectedIndex=0;
         this.buttons = new Group();
         this.cdChange=0;
-
+        Game.instance.pokus = 1124;
         //background
         var bgImg= new Sprite(Game.instance.width*2,Game.instance.height*2);
         bgImg.image=Game.instance.assets['www/picture/spaceBG.png'];
@@ -140,7 +140,8 @@ var SceneGame = Class.create(enchant.Scene, {
         bgImg2.y=-Game.instance.height;
 
         var game = Game.instance;
-        game.scoreLabel = new TextLabel(8, 8, "SCORE:");
+        game.apLabel = new TextLabel(8, 8, "ARMORY POINT:");
+        game.scoreLabel = new TextLabel(8, 20, "SCORE:");
         game.armoryPoit=0;
 
         var barHP = new Bar(Game.instance.width - (20), Game.instance.height/2 - (50));
@@ -187,6 +188,7 @@ var SceneGame = Class.create(enchant.Scene, {
         this.addChild(mpFrag);
         this.addChild(enemySpawner);
         this.addChild(game.scoreLabel);
+        this.addChild(game.apLabel);
         this.addChild(game.enemies)
 
     }
@@ -201,15 +203,43 @@ var SceneArmory = Class.create(enchant.Scene, {
 
         var game = Game.instance;
 
-        var player = new Player(Game.instance.gameW/2 - Game.instance.playerShip.width/2, Game.instance.height/2);
-        //player = Game.instance.playerShip;
-
         //armory point
+
         var imgArmory = new TextLabel(8,8*1, "ARMORY POINT:");
-        this.addEventListener('enter', function(){
+        //imgArmory.easing = 0;
+        this.addEventListener('enterframe', function(){
             imgArmory.score = game.armoryPoint;
+
+            imgShipHealth.score = game.shipUpgrade.hull_maxDmgCap;
+            imgShipEnergy.score = game.shipUpgrade.generator_maxEnergyCap;
+            imgShipDmgRed.score = game.shipUpgrade.hull_dmgReduction;
+            imgShipDmgAbs.score = game.shipUpgrade.shield_dmgAbsortion;
+            imgShipEnergyRegen.score = game.shipUpgrade.generator_energyPerSec;
+            imgShipEnergyConsum.score = game.shipUpgrade.shield_energyConsumption;
+            imgShipSpeed.score = game.shipUpgrade.moveSpeed;
+
+            imgBaseDamage.score = game.shipUpgrade.baseS_damage;
+            imgBaseProjectile.score = game.shipUpgrade.baseS_projectiles;
+            imgBaseSpeed.score = game.shipUpgrade.baseS_moveSpeed;
+            imgBaseCooldown.score = game.shipUpgrade.baseS_cooldown;
+
+            imgRocketDamage.score = game.shipUpgrade.rocketS_damage;
+            imgRocketSpeed.score = game.shipUpgrade.rocketS_moveSpeed;
+            imgRocketCooldown.score = game.shipUpgrade.rocketS_cooldown;
+
+            imgCoverDamage.score = game.shipUpgrade.coverS_damage;
+            imgCoverProjectile.score = game.shipUpgrade.coverS_projectiles;
+            imgCoverRange.score = game.shipUpgrade.coverS_age;
+            imgCoverSpeed.score = game.shipUpgrade.coverS_moveSpeed;
+            imgCoverCooldown.score = game.shipUpgrade.coverS_cooldown;
+
+            if(game.input.a){
+                game.popScene();
+            }
         });
 
+        //status text
+        {
         //ship
         var imgShip = new MutableText(8,14*3);
         imgShip.text = "SHIP";
@@ -475,247 +505,341 @@ var SceneArmory = Class.create(enchant.Scene, {
         imgCoverCooldownMinus.image = game.assets['www/picture/lblMinus.png'];
         imgCoverCooldownMinus.x = 8+14;
         imgCoverCooldownMinus.y = 14*28;
-
+        }
 
         //ship listener
+        {
         imgShipHealthPlus.addEventListener('touchend', function () {
-            imgShipHealth.score++;
-            game.shipUpgrade.hull_maxDmgCap++;
+            if(Math.pow((game.shipUpgrade.hull_maxDmgCap - game.shipUpgradeDefault.hull_maxDmgCap + 1), 2)*game.shipUpgrade.costAP <= game.armoryPoint){
+                game.armoryPoint -= Math.pow((game.shipUpgrade.hull_maxDmgCap - game.shipUpgradeDefault.hull_maxDmgCap + 1), 2)*game.shipUpgrade.costAP;
+                //imgShipHealth.score++;
+                game.shipUpgrade.hull_maxDmgCap++;
+            }
         });
 
         imgShipHealthMinus.addEventListener('touchend', function () {
             if(game.shipUpgradeDefault.hull_maxDmgCap < game.shipUpgrade.hull_maxDmgCap){
-                imgShipHealth.score--;
+                game.armoryPoint += Math.pow((game.shipUpgrade.hull_maxDmgCap - game.shipUpgradeDefault.hull_maxDmgCap), 2)*game.shipUpgrade.costAP;
+                //imgShipHealth.score--;
                 game.shipUpgrade.hull_maxDmgCap--;
             }
         });
 
         imgShipEnergyPlus.addEventListener('touchend', function () {
-            imgShipEnergy.score++;
-            game.shipUpgrade.generator_maxEnergyCap++;
+            if(Math.pow((game.shipUpgrade.generator_maxEnergyCap - game.shipUpgradeDefault.generator_maxEnergyCap + 1), 2)*game.shipUpgrade.costAP <= game.armoryPoint){
+                game.armoryPoint -= Math.pow((game.shipUpgrade.generator_maxEnergyCap - game.shipUpgradeDefault.generator_maxEnergyCap + 1), 2)*game.shipUpgrade.costAP;
+                //imgShipEnergy.score++;
+                game.shipUpgrade.generator_maxEnergyCap++;
+            }
         });
 
         imgShipEnergyMinus.addEventListener('touchend', function () {
             if(game.shipUpgradeDefault.generator_maxEnergyCap < game.shipUpgrade.generator_maxEnergyCap){
-                imgShipEnergy.score--;
+                game.armoryPoint += Math.pow((game.shipUpgrade.generator_maxEnergyCap - game.shipUpgradeDefault.generator_maxEnergyCap), 2)*game.shipUpgrade.costAP;
+                //imgShipEnergy.score--;
                 game.shipUpgrade.generator_maxEnergyCap--;
             }
         });
 
         imgShipDmgRedPlus.addEventListener('touchend', function () {
             if(game.shipUpgrade.hull_dmgReduction < 99){
-                imgShipDmgRed.score++;
-                game.shipUpgrade.hull_dmgReduction++;
+                if(Math.pow((game.shipUpgrade.hull_dmgReduction - game.shipUpgradeDefault.hull_dmgReduction + 1), 2)*game.shipUpgrade.costAP <= game.armoryPoint){
+                    game.armoryPoint -= Math.pow((game.shipUpgrade.hull_dmgReduction - game.shipUpgradeDefault.hull_dmgReduction + 1), 2)*game.shipUpgrade.costAP;
+                    //imgShipDmgRed.score++;
+                    game.shipUpgrade.hull_dmgReduction++;
+                }
             }
         });
 
         imgShipDmgRedMinus.addEventListener('touchend', function () {
             if(game.shipUpgradeDefault.hull_dmgReduction < game.shipUpgrade.hull_dmgReduction){
-                imgShipDmgRed.score--;
+                game.armoryPoint += Math.pow((game.shipUpgrade.hull_dmgReduction - game.shipUpgradeDefault.hull_dmgReduction), 2)*game.shipUpgrade.costAP;
+                //imgShipDmgRed.score--;
                 game.shipUpgrade.hull_dmgReduction--;
             }
         });
 
         imgShipDmgAbsPlus.addEventListener('touchend', function () {
             if(game.shipUpgrade.shield_dmgAbsortion < 99){
-                imgShipDmgAbs.score++;
-                game.shipUpgrade.shield_dmgAbsortion++;
+                if(Math.pow((game.shipUpgrade.shield_dmgAbsortion - game.shipUpgradeDefault.shield_dmgAbsortion + 1), 2)*game.shipUpgrade.costAP <= game.armoryPoint){
+                    game.armoryPoint -= Math.pow((game.shipUpgrade.shield_dmgAbsortion - game.shipUpgradeDefault.shield_dmgAbsortion + 1), 2)*game.shipUpgrade.costAP;
+                    //imgShipDmgAbs.score++;
+                    game.shipUpgrade.shield_dmgAbsortion++;
+                }
             }
         });
 
         imgShipDmgAbsMinus.addEventListener('touchend', function () {
             if(game.shipUpgradeDefault.shield_dmgAbsortion < game.shipUpgrade.shield_dmgAbsortion){
-                imgShipDmgAbs.score--;
+                game.armoryPoint += Math.pow((game.shipUpgrade.shield_dmgAbsortion - game.shipUpgradeDefault.shield_dmgAbsortion), 2)*game.shipUpgrade.costAP;
+                //imgShipDmgAbs.score--;
                 game.shipUpgrade.shield_dmgAbsortion--;
             }
         });
 
         imgShipEnergyRegenPlus.addEventListener('touchend', function () {
-            imgShipEnergyRegen.score++;
-            game.shipUpgrade.generator_energyPerSec++;
+            if(Math.pow((game.shipUpgrade.generator_energyPerSec - game.shipUpgradeDefault.generator_energyPerSec + 1), 2)*game.shipUpgrade.costAP <= game.armoryPoint){
+                game.armoryPoint -= Math.pow((game.shipUpgrade.generator_energyPerSec - game.shipUpgradeDefault.generator_energyPerSec + 1), 2)*game.shipUpgrade.costAP;
+                //imgShipEnergyRegen.score++;
+                game.shipUpgrade.generator_energyPerSec++;
+            }
         });
 
         imgShipEnergyRegenMinus.addEventListener('touchend', function () {
             if(game.shipUpgradeDefault.generator_energyPerSec < game.shipUpgrade.generator_energyPerSec){
-                imgShipEnergyRegen.score--;
+                game.armoryPoint += Math.pow((game.shipUpgrade.generator_energyPerSec - game.shipUpgradeDefault.generator_energyPerSec), 2)*game.shipUpgrade.costAP;
+                //imgShipEnergyRegen.score--;
                 game.shipUpgrade.generator_energyPerSec--;
             }
         });
 
         imgShipEnergyConsumPlus.addEventListener('touchend', function () {
-            if (game.shipUpgrade.shield_energyConsumption < 99){
-                imgShipEnergyConsum.score++;
-                game.shipUpgrade.shield_energyConsumption++;
+            if(game.shipUpgrade.shield_energyConsumption < 99){
+                if(Math.pow((game.shipUpgrade.shield_energyConsumption - game.shipUpgradeDefault.shield_energyConsumption + 1), 2)*game.shipUpgrade.costAP <= game.armoryPoint){
+                    game.armoryPoint -= Math.pow((game.shipUpgrade.shield_energyConsumption - game.shipUpgradeDefault.shield_energyConsumption + 1), 2)*game.shipUpgrade.costAP;
+                    //imgShipEnergyConsum.score++;
+                    game.shipUpgrade.shield_energyConsumption++;
+                }
             }
         });
 
         imgShipEnergyConsumMinus.addEventListener('touchend', function () {
             if(game.shipUpgradeDefault.shield_energyConsumption < game.shipUpgrade.shield_energyConsumption){
-                imgShipEnergyConsum.score--;
+                game.armoryPoint += Math.pow((game.shipUpgrade.shield_energyConsumption - game.shipUpgradeDefault.shield_energyConsumption), 2)*game.shipUpgrade.costAP;
+                //imgShipEnergyConsum.score--;
                 game.shipUpgrade.shield_energyConsumption--;
             }
         });
 
         imgShipSpeedPlus.addEventListener('touchend', function () {
             if(game.shipUpgrade.moveSpeed < 15) {
-                imgShipSpeed.score++;
-                game.shipUpgrade.moveSpeed++;
+                if(Math.pow((game.shipUpgrade.moveSpeed - game.shipUpgradeDefault.moveSpeed + 1), 2)*game.shipUpgrade.costAP <= game.armoryPoint){
+                    game.armoryPoint -= Math.pow((game.shipUpgrade.moveSpeed - game.shipUpgradeDefault.moveSpeed + 1), 2)*game.shipUpgrade.costAP;
+                    //imgShipSpeed.score++;
+                    game.shipUpgrade.moveSpeed++;
+                }
             }
         });
 
         imgShipSpeedMinus.addEventListener('touchend', function () {
             if(game.shipUpgradeDefault.moveSpeed < game.shipUpgrade.moveSpeed){
-                imgShipSpeed.score--;
+                game.armoryPoint += Math.pow((game.shipUpgrade.moveSpeed - game.shipUpgradeDefault.moveSpeed), 2)*game.shipUpgrade.costAP;
+                //imgShipSpeed.score--;
                 game.shipUpgrade.moveSpeed--;
             }
         });
-
+        }
 
         //base shoot listener
+        {
         imgBaseDamagePlus.addEventListener('touchend', function () {
-            imgBaseDamage.score++;
-            Game.instance.shipUpgrade.baseS_damage++;
+            if(Math.pow((game.shipUpgrade.baseS_damage - game.shipUpgradeDefault.baseS_damage + 1), 2)*game.shipUpgrade.costAP <= game.armoryPoint){
+                game.armoryPoint -= Math.pow((game.shipUpgrade.baseS_damage - game.shipUpgradeDefault.baseS_damage + 1), 2)*game.shipUpgrade.costAP;
+                //imgBaseDamage.score++;
+                game.shipUpgrade.baseS_damage++;
+            }
         });
 
         imgBaseDamageMinus.addEventListener('touchend', function () {
             if(game.shipUpgradeDefault.baseS_damage < game.shipUpgrade.baseS_damage){
-                imgBaseDamage.score--;
-                Game.instance.shipUpgrade.baseS_damage--;
+                if(Math.pow((game.shipUpgrade.baseS_damage - game.shipUpgradeDefault.baseS_damage + 1), 2)*game.shipUpgrade.costAP <= game.armoryPoint){
+                    game.armoryPoint += Math.pow((game.shipUpgrade.baseS_damage - game.shipUpgradeDefault.baseS_damage), 2)*game.shipUpgrade.costAP;
+                    //imgBaseDamage.score--;
+                    game.shipUpgrade.baseS_damage--;
+                }
             }
         });
 
         imgBaseProjectilePlus.addEventListener('touchend', function () {
-            imgBaseProjectile.score++;
-            Game.instance.shipUpgrade.baseS_projectiles++;
+            if(Math.pow((game.shipUpgrade.baseS_projectiles - game.shipUpgradeDefault.baseS_projectiles + 1), 2)*game.shipUpgrade.costAP <= game.armoryPoint){
+                game.armoryPoint -= Math.pow((game.shipUpgrade.baseS_projectiles - game.shipUpgradeDefault.baseS_projectiles + 1), 2)*game.shipUpgrade.costAPNext;
+                //imgBaseProjectile.score++;
+                game.shipUpgrade.baseS_projectiles++;
+            }
         });
 
         imgBaseProjectileMinus.addEventListener('touchend', function () {
             if(game.shipUpgradeDefault.baseS_projectiles < game.shipUpgrade.baseS_projectiles){
-                imgBaseProjectile.score--;
-                Game.instance.shipUpgrade.baseS_projectiles--;
+                game.armoryPoint += Math.pow((game.shipUpgrade.baseS_projectiles - game.shipUpgradeDefault.baseS_projectiles), 2)*game.shipUpgrade.costAPNext;
+                //imgBaseProjectile.score--;
+                game.shipUpgrade.baseS_projectiles--;
             }
         });
 
         imgBaseSpeedPlus.addEventListener('touchend', function () {
             if(game.shipUpgrade.baseS_moveSpeed < 20){
-                imgBaseSpeed.score++;
-                Game.instance.shipUpgrade.baseS_moveSpeed++;
+                if(Math.pow((game.shipUpgrade.baseS_moveSpeed - game.shipUpgradeDefault.baseS_moveSpeed + 1), 2)*game.shipUpgrade.costAP <= game.armoryPoint){
+                    game.armoryPoint -= Math.pow((game.shipUpgrade.baseS_moveSpeed - game.shipUpgradeDefault.baseS_moveSpeed + 1), 2)*game.shipUpgrade.costAP;
+                    //imgBaseSpeed.score++;
+                    game.shipUpgrade.baseS_moveSpeed++;
+                }
             }
         });
 
         imgBaseSpeedMinus.addEventListener('touchend', function () {
             if(game.shipUpgradeDefault.baseS_moveSpeed < game.shipUpgrade.baseS_moveSpeed){
-                imgBaseSpeed.score--;
-                Game.instance.shipUpgrade.baseS_moveSpeed--;
+                game.armoryPoint += Math.pow((game.shipUpgrade.baseS_moveSpeed - game.shipUpgradeDefault.baseS_moveSpeed), 2)*game.shipUpgrade.costAP;
+                //imgBaseSpeed.score--;
+                game.shipUpgrade.baseS_moveSpeed--;
             }
         });
 
         imgBaseCooldownPlus.addEventListener('touchend', function () {
             if(game.shipUpgradeDefault.baseS_cooldown > game.shipUpgrade.baseS_cooldown){
-                imgBaseCooldown.score++;
-                Game.instance.shipUpgrade.baseS_cooldown++;
+                game.armoryPoint += Math.pow((game.shipUpgradeDefault.baseS_cooldown - game.shipUpgrade.baseS_cooldown), 2)*game.shipUpgrade.costAP;
+                //imgBaseCooldown.score++;
+                game.shipUpgrade.baseS_cooldown++;
             }
         });
 
         imgBaseCooldownMinus.addEventListener('touchend', function () {
             if(game.shipUpgrade.baseS_cooldown > 2){
-                imgBaseCooldown.score--;
-                game.shipUpgrade.baseS_cooldown--;
+                if(Math.pow((game.shipUpgradeDefault.baseS_cooldown - game.shipUpgrade.baseS_cooldown + 1), 2)*game.shipUpgrade.costAP <= game.armoryPoint){
+                    game.armoryPoint -= Math.pow((game.shipUpgradeDefault.baseS_cooldown - game.shipUpgrade.baseS_cooldown + 1), 2)*game.shipUpgrade.costAP;
+                    //imgBaseCooldown.score--;
+                    game.shipUpgrade.baseS_cooldown--;
+                }
+            }
+        });
+        }
+
+        //rocket shoot listener
+        {
+        imgRocketDamagePlus.addEventListener('touchend', function () {
+            if(Math.pow((game.shipUpgrade.rocketS_damage - game.shipUpgradeDefault.rocketS_damage + 1), 2)*game.shipUpgrade.costAP <= game.armoryPoint){
+                game.armoryPoint -= Math.pow((game.shipUpgrade.rocketS_damage - game.shipUpgradeDefault.rocketS_damage + 1), 2)*game.shipUpgrade.costAP;
+                //imgRocketDamage.score++;
+                game.shipUpgrade.rocketS_damage++;
             }
         });
 
-
-        //rocket shoot listener
-        imgRocketDamagePlus.addEventListener('touchend', function () {
-            imgRocketDamage.score++;
-            Game.instance.shipUpgrade.rocketS_damage++;
-        });
-
         imgRocketDamageMinus.addEventListener('touchend', function () {
-            if(game.shipUpgradeDefault.rocketS_damage > game.shipUpgrade.rocketS_damage){
-                imgRocketDamage.score--;
-                Game.instance.shipUpgrade.rocketS_damage--;
+            if(game.shipUpgradeDefault.rocketS_damage < game.shipUpgrade.rocketS_damage){
+                game.armoryPoint += Math.pow((game.shipUpgrade.rocketS_damage - game.shipUpgradeDefault.rocketS_damage), 2)*game.shipUpgrade.costAP;
+                //imgRocketDamage.score--;
+                game.shipUpgrade.rocketS_damage--;
             }
         });
 
         imgRocketSpeedPlus.addEventListener('touchend', function () {
-            imgRocketSpeed.score++;
-            Game.instance.shipUpgrade.rocketS_moveSpeed++;
-        });
-
-        imgRocketSpeedMinus.addEventListener('touchend', function () {
-            imgRocketSpeed.score--;
-            Game.instance.shipUpgrade.rocketS_moveSpeed--;
-        });
-
-        imgRocketCooldownPlus.addEventListener('touchend', function () {
-            imgRocketCooldown.score++;
-            Game.instance.shipUpgrade.rocketS_cooldown++;
-        });
-
-        imgRocketCooldownMinus.addEventListener('touchend', function () {
-            imgRocketCooldown.score--;
-            Game.instance.shipUpgrade.rocketS_cooldown--;
-        });
-
-        //cover shoot listener
-        imgCoverDamagePlus.addEventListener('touchend', function () {
-            imgCoverDamage.score++;
-            Game.instance.shipUpgrade.coverS_damage++;
-        });
-
-        imgCoverDamageMinus.addEventListener('touchend', function () {
-            imgCoverDamage.score--;
-            Game.instance.shipUpgrade.coverS_damage--;
-        });
-
-        imgCoverProjectilePlus.addEventListener('touchend', function () {
-            imgCoverProjectile.score++;
-            Game.instance.shipUpgrade.coverS_projectiles++;
-        });
-
-        imgCoverProjectileMinus.addEventListener('touchend', function () {
-            imgCoverProjectile.score--;
-            Game.instance.shipUpgrade.coverS_projectiles--;
-        });
-
-        imgCoverRangePlus.addEventListener('touchend', function () {
-            imgCoverRange.score++;
-            Game.instance.shipUpgrade.coverS_age++;
-        });
-
-        imgCoverRangeMinus.addEventListener('touchend', function () {
-            imgCoverRange.score--;
-            Game.instance.shipUpgrade.coverS_age--;
-        });
-
-        imgCoverSpeedPlus.addEventListener('touchend', function () {
-            imgCoverSpeed.score++;
-            Game.instance.shipUpgrade.coverS_moveSpeed++;
-        });
-
-        imgCoverSpeedMinus.addEventListener('touchend', function () {
-            imgCoverSpeed.score--;
-            Game.instance.shipUpgrade.coverS_moveSpeed--;
-        });
-
-        imgCoverCooldownPlus.addEventListener('touchend', function () {
-            imgCoverCooldown.score++;
-            Game.instance.shipUpgrade.coverS_cooldown++;
-        });
-
-        imgCoverCooldownMinus.addEventListener('touchend', function () {
-            imgCoverCooldown.score--;
-            Game.instance.shipUpgrade.coverS_cooldown--;
-        });
-
-        this.addEventListener('enterframe', function () {
-            if(game.input.a){
-                game.popScene();
+            if(Math.pow((game.shipUpgrade.rocketS_moveSpeed - game.shipUpgradeDefault.rocketS_moveSpeed + 1), 2)*game.shipUpgrade.costAP <= game.armoryPoint){
+                game.armoryPoint -= Math.pow((game.shipUpgrade.rocketS_moveSpeed - game.shipUpgradeDefault.rocketS_moveSpeed + 1), 2)*game.shipUpgrade.costAP;
+                //imgRocketSpeed.score++;
+                game.shipUpgrade.rocketS_moveSpeed++;
             }
         });
 
-        this.addChild(player);
+        imgRocketSpeedMinus.addEventListener('touchend', function () {
+            if(game.shipUpgradeDefault.rocketS_moveSpeed < game.shipUpgrade.rocketS_moveSpeed){
+                game.armoryPoint += Math.pow((game.shipUpgrade.rocketS_moveSpeed - game.shipUpgradeDefault.rocketS_moveSpeed), 2)*game.shipUpgrade.costAP;
+                //imgRocketSpeed.score--;
+                game.shipUpgrade.rocketS_moveSpeed--;
+            }
+        });
+
+        imgRocketCooldownPlus.addEventListener('touchend', function () {
+            if(game.shipUpgradeDefault.rocketS_cooldown > game.shipUpgrade.rocketS_cooldown){
+                game.armoryPoint += Math.pow((game.shipUpgradeDefault.rocketS_cooldown - game.shipUpgrade.rocketS_cooldown), 2)*game.shipUpgrade.costAP;
+                //imgRocketCooldown.score++;
+                game.shipUpgrade.rocketS_cooldown++;
+            }
+        });
+
+        imgRocketCooldownMinus.addEventListener('touchend', function () {
+            if(game.shipUpgrade.rocketS_cooldown > 2){
+                if(Math.pow((game.shipUpgradeDefault.rocketS_cooldown - game.shipUpgrade.rocketS_cooldown + 1), 2)*game.shipUpgrade.costAP <= game.armoryPoint){
+                    game.armoryPoint -= Math.pow((game.shipUpgradeDefault.rocketS_cooldown - game.shipUpgrade.rocketS_cooldown + 1), 2)*game.shipUpgrade.costAP;
+                    //imgRocketCooldown.score--;
+                    game.shipUpgrade.rocketS_cooldown--;
+                }
+            }
+        });
+        }
+
+        //cover shoot listener
+        {
+        imgCoverDamagePlus.addEventListener('touchend', function () {
+            if(Math.pow((game.shipUpgrade.coverS_damage - game.shipUpgradeDefault.coverS_damage + 1), 2)*game.shipUpgrade.costAP <= game.armoryPoint){
+                game.armoryPoint -= Math.pow((game.shipUpgrade.coverS_damage - game.shipUpgradeDefault.coverS_damage + 1), 2)*game.shipUpgrade.costAP;
+                //imgCoverDamage.score++;
+                game.shipUpgrade.coverS_damage++;
+            }
+        });
+
+        imgCoverDamageMinus.addEventListener('touchend', function () {
+            if(game.shipUpgradeDefault.coverS_damage < game.shipUpgrade.coverS_damage){
+                game.armoryPoint += Math.pow((game.shipUpgrade.coverS_damage - game.shipUpgradeDefault.coverS_damage), 2)*game.shipUpgrade.costAP;
+                //imgCoverDamage.score--;
+                game.shipUpgrade.coverS_damage--;
+            }
+        });
+
+        imgCoverProjectilePlus.addEventListener('touchend', function () {
+            if(Math.pow((game.shipUpgrade.coverS_projectiles - game.shipUpgradeDefault.coverS_projectiles + 1), 2)*game.shipUpgrade.costAP <= game.armoryPoint){
+                game.armoryPoint -= Math.pow((game.shipUpgrade.coverS_projectiles - game.shipUpgradeDefault.coverS_projectiles + 1), 2)*game.shipUpgrade.costAPNext;
+                //imgCoverProjectile.score++;
+                game.shipUpgrade.coverS_projectiles++;}
+
+        });
+
+        imgCoverProjectileMinus.addEventListener('touchend', function () {
+            if(game.shipUpgradeDefault.coverS_projectiles < game.shipUpgrade.coverS_projectiles){
+                game.armoryPoint += Math.pow((game.shipUpgrade.coverS_projectiles - game.shipUpgradeDefault.coverS_projectiles), 2)*game.shipUpgrade.costAPNext;
+                //imgCoverProjectile.score--;
+                Game.instance.shipUpgrade.coverS_projectiles--;
+            }
+        });
+
+        imgCoverRangePlus.addEventListener('touchend', function () {
+            if(Math.pow((game.shipUpgrade.coverS_age - game.shipUpgradeDefault.coverS_age + 1), 2)*game.shipUpgrade.costAP <= game.armoryPoint){
+                game.armoryPoint -= Math.pow((game.shipUpgrade.coverS_age - game.shipUpgradeDefault.coverS_age + 1), 2)*game.shipUpgrade.costAP;
+                //imgCoverRange.score++;
+                game.shipUpgrade.coverS_age++;
+            }
+        });
+
+        imgCoverRangeMinus.addEventListener('touchend', function () {
+            if(game.shipUpgradeDefault.coverS_age < game.shipUpgrade.coverS_age){
+                game.armoryPoint += Math.pow((game.shipUpgrade.coverS_age - game.shipUpgradeDefault.coverS_age), 2)*game.shipUpgrade.costAP;
+                //imgCoverRange.score--;
+                game.shipUpgrade.coverS_age--;
+            }
+        });
+
+        imgCoverSpeedPlus.addEventListener('touchend', function () {
+            if(Math.pow((game.shipUpgrade.coverS_moveSpeed - game.shipUpgradeDefault.coverS_moveSpeed + 1), 2)*game.shipUpgrade.costAP <= game.armoryPoint){
+                game.armoryPoint -= Math.pow((game.shipUpgrade.coverS_moveSpeed - game.shipUpgradeDefault.coverS_moveSpeed + 1), 2)*game.shipUpgrade.costAP;
+                //imgCoverSpeed.score++;
+                game.shipUpgrade.coverS_moveSpeed++;
+            }
+        });
+
+        imgCoverSpeedMinus.addEventListener('touchend', function () {
+            if(game.shipUpgradeDefault.coverS_moveSpeed < game.shipUpgrade.coverS_moveSpeed){
+                game.armoryPoint += Math.pow((game.shipUpgrade.coverS_moveSpeed - game.shipUpgradeDefault.coverS_moveSpeed), 2)*game.shipUpgrade.costAP;
+                //imgCoverSpeed.score--;
+                game.shipUpgrade.coverS_moveSpeed--;
+            }
+        });
+
+        imgCoverCooldownPlus.addEventListener('touchend', function () {
+            if(game.shipUpgradeDefault.coverS_cooldown > game.shipUpgrade.coverS_cooldown){
+                game.armoryPoint += Math.pow((game.shipUpgradeDefault.coverS_cooldown - game.shipUpgrade.coverS_cooldown), 2)*game.shipUpgrade.costAP;
+                //imgCoverCooldown.score++;
+                game.shipUpgrade.coverS_cooldown++;
+            }
+        });
+
+        imgCoverCooldownMinus.addEventListener('touchend', function () {
+            if(game.shipUpgrade.coverS_cooldown > 2){
+                if(Math.pow((game.shipUpgradeDefault.coverS_cooldown - game.shipUpgrade.coverS_cooldown + 1), 2)*game.shipUpgrade.costAP <= game.armoryPoint){
+                    game.armoryPoint -= Math.pow((game.shipUpgradeDefault.coverS_cooldown - game.shipUpgrade.coverS_cooldown + 1), 2)*game.shipUpgrade.costAP;
+                    //imgCoverCooldown.score--;
+                    game.shipUpgrade.coverS_cooldown--;
+                }
+            }
+        });
+        }
 
         this.addChild(imgArmory);
 
@@ -744,7 +868,7 @@ var SceneArmory = Class.create(enchant.Scene, {
         this.addChild(imgCoverProjectile);
         this.addChild(imgCoverRange);
         this.addChild(imgCoverSpeed);
-        this.addChild(imgRocketCooldown);
+        this.addChild(imgCoverCooldown);
 
         this.addChild(imgShipHealthPlus);
         this.addChild(imgShipHealthMinus);
@@ -785,8 +909,8 @@ var SceneArmory = Class.create(enchant.Scene, {
         this.addChild(imgCoverRangeMinus);
         this.addChild(imgCoverSpeedPlus);
         this.addChild(imgCoverSpeedMinus);
-        this.addChild(imgRocketCooldownPlus);
-        this.addChild(imgRocketCooldownMinus);
+        this.addChild(imgCoverCooldownPlus);
+        this.addChild(imgCoverCooldownMinus);
     }
 });
 

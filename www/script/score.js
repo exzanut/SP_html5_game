@@ -92,7 +92,10 @@ var TextLabel = enchant.Class.create(MutableText, {
             if (this.easing === 0) {
                 this.text = this.label + (this._current = this._score);
             } else {
-                this._current += Math.ceil((this._score - this._current) / this.easing);
+                if((this._score - this._current) > 0){
+                    this._current += Math.ceil((this._score - this._current) / this.easing);
+                }
+                else this._current += Math.floor((this._score - this._current) / this.easing);
                 this.text = this.label + this._current;
             }
         });
