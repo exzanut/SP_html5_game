@@ -1,11 +1,12 @@
-var UpgradeList = Class.create({
+var UpgradeList = Class.create(enchant.Node,{
     // The shop game scene.
     initialize: function() {
+        enchant.Sprite.call(this);
 
-        this.moveSpeed = 10;
+        this.moveSpeed = 5;
 
         this.hull_dmgReduction = 0; //0%
-        this.hull_maxDmgCap = 20;   //hp
+        this.hull_maxDmgCap = 10;   //hp
 
         this.shield_dmgAbsortion = 1;
         this.shield_energyConsumption = 0; //%
@@ -14,19 +15,22 @@ var UpgradeList = Class.create({
         this.generator_maxEnergyCap = 10;
 
         this.baseS_damage = 1;
-        this.baseS_projectiles = 2;
-        this.baseS_moveSpeed = 20;
-        this.baseS_cooldown = 10;
+        this.baseS_projectiles = 1;
+        this.baseS_moveSpeed = 10;
+        this.baseS_cooldown = 20;
 
         this.rocketS_damage = 5;
         this.rocketS_moveSpeed = 15;
-        this.rocketS_cooldown = 20;
+        this.rocketS_cooldown = 100;
 
         this.coverS_damage = 1;
         this.coverS_projectiles = 1;
-        this.coverS_moveSpeed = 12;
+        this.coverS_moveSpeed = 10;
         this.coverS_cooldown = 30;
         this.coverS_age = 3;
+
+        this.costAP = 100;
+        this.costAPNext = 200;
 
     }
 });
@@ -77,6 +81,7 @@ var Player = enchant.Class.create(enchant.Sprite, {
         }
 
         Game.instance.scoreLabel.score = Game.instance.score;
+        Game.instance.apLabel.score = Game.instance.armoryPoint;
     },
 
     fire: function () {
@@ -141,7 +146,9 @@ var Player = enchant.Class.create(enchant.Sprite, {
                 this.moveSpeed += 1.5;
             }
         }
-        else this.moveSpeed = 1;
+        else {
+            if(this.moveSpeed > 2.5) this.moveSpeed -= 1.5;
+        }
 
         if (Game.instance.input.left && Game.instance.input.up) {
             this.width = Game.instance.assets['www/picture/shipLeft.png'].width;
