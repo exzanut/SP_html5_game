@@ -326,9 +326,9 @@ var UpgradeList = Class.create({
         this.generator_maxEnergyCap = 10;
 
         this.baseS_damage = 1;
-        this.baseS_projectiles = 1;
+        this.baseS_projectiles = 2;
         this.baseS_moveSpeed = 20;
-        this.baseS_cooldown = 15;
+        this.baseS_cooldown = 10;
 
         this.rocketS_damage = 5;
         this.rocketS_moveSpeed = 15;
@@ -420,18 +420,33 @@ var Player = enchant.Class.create(enchant.Sprite, {
 
     fire: function () {
         if(Game.instance.frame%Game.instance.shipUpgrade.baseS_cooldown == 0){
-            for(var i=1; i <= Game.instance.shipUpgrade.baseS_projectiles; i++){
+            var projectiles = Game.instance.shipUpgrade.baseS_projectiles;  
+            var angle=(projectiles-1)*Math.PI/30;
+                if(angle>2*Math.PI/3){
+                    angle=2*Math.PI/3;
+                } 
+            for(var i=1; i <= projectiles; i++){
+                var dir=Math.PI/2;
+                if(angle!=0){
+                    dir=(Math.PI/2+angle/2-(i-1)*angle/(projectiles-1));
+                }
                 this.baseS = new BasePlayerShoot
-                (this.x + (Game.instance.playerShip.width/Game.instance.shipUpgrade.baseS_projectiles)*i -
-                    (Game.instance.playerShip.width/(Game.instance.shipUpgrade.baseS_projectiles))/2 - 4, this.y - this.height/2, Math.PI/2);
+                (this.x + (Game.instance.playerShip.width/projectiles)*i -
+                    (Game.instance.playerShip.width/(projectiles))/2 - 4, this.y - this.height/2, dir);
             }
 
             if(Game.instance.soundTurn == true) Game.instance.playerShip.baseS.sound.clone().play();
         }
 
         if(Game.instance.frame%Game.instance.shipUpgrade.rocketS_cooldown == 0){
-            this.rocketS = new RocketPlayerShoot
+            if(Game.instance.frame/Game.instance.shipUpgrade.rocketS_cooldown%2==0){
+                this.rocketS = new RocketPlayerShoot
                 (this.x - 6, this.y + this.height/3, Math.PI/2);
+            }else{
+                this.rocketS = new RocketPlayerShoot
+                (this.x +this.width-6, this.y + this.height/3, Math.PI/2);
+            }
+            
         }
 
         if(Game.instance.frame%Game.instance.shipUpgrade.coverS_cooldown == 0){

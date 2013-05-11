@@ -140,6 +140,10 @@ var Star = enchant.Class.create(enchant.Sprite, {
             }
             if(Game.instance.playerShip.intersect(this)) {
                 Game.instance.currency+=this.value;
+                var pickUpText = new MutableText(this.x,this.y);
+                pickUpText.text=this.value+" AP";
+                pickUpText.tl.cue({15:function(){Game.instance.scGame.removeChild(pickUpText)}});
+                Game.instance.scGame.addChild(pickUpText);
                 this.remove();
             }
             this.tl.moveBy(5,12,10).moveBy(-5,12,10);
