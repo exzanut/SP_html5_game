@@ -60,7 +60,7 @@ window.onload = function () {
         game.shipUpgradeDefault = new UpgradeList();
         game.playerShip = new Player();
         game.score = 0;
-        game.currency = 0;
+        game.armoryPoint = 0;
         game.bgrndSound = game.assets['www/sound/background.wav'];
 
         //keybind
@@ -218,7 +218,7 @@ var SceneGame = Class.create(enchant.Scene, {
 
         var game = Game.instance;
         game.scoreLabel = new TextLabel(8, 8, "SCORE:");
-        game.currency=0;
+        game.armoryPoit=0;
 
         var barHP = new Bar(Game.instance.width - (20), Game.instance.height/2 - (50));
         var hpFrag = new BarFragment(Game.instance.width - (20)+1, 1);
@@ -283,8 +283,9 @@ var SceneArmory = Class.create(enchant.Scene, {
 
         //armory point
         var imgArmory = new TextLabel(8,8*1, "ARMORY POINT:");
-        imgArmory.score = game.currency;
-
+        this.addEventListener('enter', function(){
+            imgArmory.score = game.armoryPoint;
+        });
 
         //ship
         var imgShip = new MutableText(8,14*3);
