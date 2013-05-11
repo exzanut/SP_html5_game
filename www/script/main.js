@@ -118,7 +118,7 @@ var SceneMenu = Class.create(enchant.Scene, {
         imgArmory.x = game.width/2-imgArmory.width/2;
         imgArmory.y = game.height/2+150;
         imgArmory.addEventListener('touchend', function () {
-            game.pushScene(game.scShop);
+            game.pushScene(game.scArmory);
         });
         this.buttons.addChild(imgArmory);
 
