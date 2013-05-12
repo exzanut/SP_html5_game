@@ -293,7 +293,7 @@ var SceneArmory = Class.create(enchant.Scene, {
             imgCoverSpeed.score = game.shipUpgrade.coverS_moveSpeed;
             imgCoverCooldown.score = game.shipUpgrade.coverS_cooldown;
 
-            imgRepair.score = game.playerShip.hull.actDmg;
+            imgRepair.score = Math.ceil(game.playerShip.hull.actDmg);
 
             Game.instance.playerShip.hull_maxDmgCap = game.shipUpgrade.hull_maxDmgCap;
             Game.instance.playerShip.generator.maxEnergyCap = game.shipUpgrade.generator_maxEnergyCap;
