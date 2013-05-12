@@ -12,14 +12,14 @@ var UpgradeList = Class.create(enchant.Node,{
         this.shield_energyConsumption = 0; //%
 
         this.generator_energyPerSec = 1;
-        this.generator_maxEnergyCap = 10;
+        this.generator_maxEnergyCap = 100;
 
         this.baseS_damage = 1;
         this.baseS_projectiles = 1;
         this.baseS_moveSpeed = 10;
         this.baseS_cooldown = 20;
 
-        this.rocketS_damage = 5;
+        this.rocketS_damage = 20;
         this.rocketS_moveSpeed = 15;
         this.rocketS_cooldown = 100;
 
@@ -265,8 +265,8 @@ var Player = enchant.Class.create(enchant.Sprite, {
     },
 
     getDmg: function (dmg) {
-        if(this.generator.actEnergy >= dmg*(1-(this.shield.energyConsumption/100))){
-            this.generator.actEnergy -= dmg*(1-(this.shield.energyConsumption/100));
+        if(this.generator.actEnergy >= dmg*(1-(this.shield.energyConsumption/100))*10){
+            this.generator.actEnergy -= dmg*(1-(this.shield.energyConsumption/100))*10;
             if(dmg > this.shield.dmgAbsortion){
                 dmg -= this.shield.dmgAbsortion;
                 if(this.hull.actDmg > dmg*(1-(this.hull.dmgReduction/100))){
@@ -285,8 +285,8 @@ var Player = enchant.Class.create(enchant.Sprite, {
             }
         }
         else{
-            if(dmg > (this.generator.actEnergy/(dmg*(1-this.shield.energyConsumption/100)))*this.shield.dmgAbsortion){
-                dmg -= (this.generator.actEnergy/(dmg*(1-this.shield.energyConsumption/100)))*this.shield.dmgAbsortion;
+            if(dmg > (this.generator.actEnergy/(dmg*(1-this.shield.energyConsumption/100)*10))*this.shield.dmgAbsortion){
+                dmg -= (this.generator.actEnergy/(dmg*(1-this.shield.energyConsumption/100)*10))*this.shield.dmgAbsortion;
                 if(this.hull.actDmg > dmg*(1-(this.hull.dmgReduction/100))){
                     this.hull.actDmg -= dmg*(1-(this.hull.dmgReduction/100));
                 }
