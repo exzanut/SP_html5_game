@@ -21,7 +21,7 @@ var EnemySpawner = enchant.Class.create(enchant.Node,{
       bossArray[j++] = new EnemyGroup([[11,0,55]]);
 
       this.addEventListener('enterframe', function (){
-        if(game.frame%(Math.floor((90-3*progress)/(Math.pow(game.ratio,1/4))))==0 && game.boss==false) {
+        if(game.frame%(Math.floor((90-5*progress)/(Math.pow(game.ratio,1/4))))==0 && game.boss==false) {
           var treshold = 10*(Math.sqrt(game.ratio));
             if(this.bossChance>treshold){
                 if((Math.random()*(treshold*2-this.bossChance))<1){
@@ -29,6 +29,7 @@ var EnemySpawner = enchant.Class.create(enchant.Node,{
                     this.bossChance=0;
                     var r = Math.floor(Math.random()*(bossArray.length));
                     bossArray[r].spawnGroup(1); //any number
+                    game.bgrndSound.changeIndex(1);
                     if(progress<4){
                       progress++;
                     }
@@ -110,7 +111,7 @@ var Enemy = enchant.Class.create(enchant.Sprite, {
         enchant.Sprite.call(this, w, h);
         this.x = x;
         this.y = y;
-        this.HP = 1 + Game.instance.scGame.age/4000;
+        this.HP = Math.pow((1 + Game.instance.scGame.age/2000),2);
         this.score = Math.floor(this.HP*10);
         this.moveArray=new Array(); //[age,angle,speed]
         this.testRemove();
@@ -156,6 +157,8 @@ var Enemy = enchant.Class.create(enchant.Sprite, {
     getDmg: function (dmg) {
       if(dmg=="kill"){
         dmg=this.HP;
+        var sound = Game.instance.assets['www/sound/shipExplosion.wav'];
+        sound.clone().play();
       }
       this.HP-=dmg;
       if(this.HP<1){
@@ -164,7 +167,9 @@ var Enemy = enchant.Class.create(enchant.Sprite, {
         ex.tl.scaleTo(this.width/32,12);
         var chance = Math.floor(this.width/10)
         if (Math.random()*(8-chance)<2){
-          new Star(this.x,this.y,this.score*10);
+          if(this.score>0){
+            new Star(this.x,this.y,this.score*2);
+          }
         }
         this.remove();
       }
@@ -230,6 +235,8 @@ var Enemy3 = enchant.Class.create(Enemy, {
   getDmg: function (dmg) {
     if(dmg=="kill"){
         dmg=this.HP;
+        var sound = Game.instance.assets['www/sound/shipExplosion.wav'];
+        sound.clone().play();
       }
      this.HP-=dmg;
       if(this.HP<1){
@@ -286,9 +293,7 @@ var Enemy6 = enchant.Class.create(Enemy, {
     this.image = Game.instance.assets['www/picture/asteroid.png'];
     this.frame = 1;
     this.HP*=10;
-    this.score = Math.floor(this.HP*10);
-    console.log("asteroid");
-    
+    this.score = 0;
   },
   shoot: function(){
   },
@@ -363,11 +368,12 @@ var Boss = enchant.Class.create(Enemy, {
             Game.instance.boss=false;
             var ex = new Explosion(boss.x+boss.width/2,boss.y+boss.height/2);
             ex.tl.scaleTo(5,12);
-            var star = new Star(boss.x+boss.width/2,boss.y+boss.height/2,boss.score*10);
+            var star = new Star(boss.x+boss.width/2,boss.y+boss.height/2,boss.score*2);
             star.tl.scaleTo(2,20);
 
             Game.instance.scGame.removeChild(boss);
             boss.remove();
+            Game.instance.bgrndSound.changeIndex(0);
           }  
         }); 
   },

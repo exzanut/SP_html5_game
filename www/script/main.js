@@ -42,9 +42,10 @@ window.onload = function () {
     //sound
     game.preload('www/sound/shipExplosion.wav');
     game.preload('www/sound/background.wav');
-    game.preload('www/sound/backgroundOld.wav');
+    game.preload('www/sound/backgroundBoss.wav');
     game.preload('www/sound/baseShoot.wav');
     game.preload('www/sound/baseExplosion.wav');
+    game.preload('www/sound/gameover.wav');
 
     game.onload = function() {   
         game.soundTurn = true;
@@ -62,7 +63,7 @@ window.onload = function () {
 
         game.score = 0;
         game.armoryPoint = 0;
-        game.bgrndSound = game.assets['www/sound/background.wav'];
+        game.bgrndSound = new BackgroundSound();
 
         //keybind
         game.keybind(37, 'left');
