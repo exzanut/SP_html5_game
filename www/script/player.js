@@ -16,8 +16,8 @@ var UpgradeList = Class.create(enchant.Node,{
 
         this.baseS_damage = 1;
         this.baseS_projectiles = 1;
-        this.baseS_moveSpeed = 10;
-        this.baseS_cooldown = 20;
+        this.baseS_moveSpeed = 12;
+        this.baseS_cooldown = 18;
 
         this.rocketS_damage = 20;
         this.rocketS_moveSpeed = 15;
@@ -26,7 +26,7 @@ var UpgradeList = Class.create(enchant.Node,{
         this.coverS_damage = 1;
         this.coverS_projectiles = 1;
         this.coverS_moveSpeed = 10;
-        this.coverS_cooldown = 30;
+        this.coverS_cooldown = 20;
         this.coverS_age = 3;
 
         this.costAP = 100;

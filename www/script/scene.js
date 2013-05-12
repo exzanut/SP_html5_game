@@ -10,7 +10,6 @@ var SceneMenu = Class.create(enchant.Scene, {
         this.selectedIndex=0;
         this.buttons = new Group();
         this.cdChange=0;
-        Game.instance.pokus = 1124;
         //background
         var bgImg= new Sprite(Game.instance.width*2,Game.instance.height*2);
         bgImg.image=Game.instance.assets['www/picture/spaceBG.png'];
@@ -55,6 +54,9 @@ var SceneMenu = Class.create(enchant.Scene, {
         imgGuide.text = "GUIDE";
         imgGuide.x = game.width/2-imgGuide.width/2;
         imgGuide.y = game.height/2+200;
+        imgGuide.addEventListener('touchend', function () {
+            game.pushScene(new SceneGuide());
+        });
         this.buttons.addChild(imgGuide);
 
         var sound = new Sprite(20, 20);
@@ -112,7 +114,7 @@ var SceneMenu = Class.create(enchant.Scene, {
                         }
                         break;
                     case 2:
-                        //game.pushScene(game.scGuide);
+                        game.pushScene(new SceneGuide());
                         break;
 
                 }
@@ -149,7 +151,7 @@ var SceneGame = Class.create(enchant.Scene, {
 
         game.apLabel = new TextLabel(8, 8, "ARMORY POINT:");
         game.scoreLabel = new TextLabel(8, 22, "SCORE:");
-        game.armoryPoint=200;
+        game.armoryPoint=500;
 
 
         var barHP = new Bar(Game.instance.width - (20), Game.instance.height/2 - (50));
@@ -1032,6 +1034,78 @@ var SceneGameOver = Class.create(enchant.Scene, {
                 game.popScene();
                 game.popScene();
                 game.onload();
+            }
+        });
+    }
+});
+
+var SceneGuide = Class.create(enchant.Scene, {
+    // The game over game scene.
+    initialize: function() {
+        // Call superclass constructor
+        Scene.apply(this);
+        var game = Game.instance;
+
+        this.backgroundColor = 'black';        
+        var shipImg = new Sprite(game.assets['www/picture/shipMid.png'].width,game.assets['www/picture/shipMid.png'].height/3);
+        shipImg.image = game.assets['www/picture/shipMid.png'];
+        shipImg.frame = 1;
+        shipImg.x = game.width/2 - shipImg.width/2;
+        shipImg.y = game.height/2 - shipImg.height/2;
+
+        var moveText = new MutableText(5,5);
+        moveText.text = "MOVE WITH ARROW KEYS OR BY TOUCH";
+        moveText.x = game.width/2 - moveText.width/2;
+        moveText.y = shipImg.y + 50;
+
+        var roundShootText = new MutableText(5,5);
+        roundShootText.text = "BASIC ENEMY SHOT";
+        roundShootText.x = game.width/2 - roundShootText.width/2;
+        roundShootText.y = 10;
+
+        var laserText = new MutableText(5,5);
+        laserText.text = "STRONG ENEMY LASER";
+        laserText.x = game.width/2 - laserText.width/2;
+        laserText.y = 30;
+
+        var starText = new MutableText(5,5);
+        starText.text = "COLLECT THESE TO GET AP";
+        starText.x = game.width/2 - starText.width/2;
+        starText.y = 50;
+
+        var armoryText = new MutableText(5,5);
+        armoryText.text = "AP CAN BE SPENT IN ARMORY TO BUY UPGRADES";
+        armoryText.x = game.width/2 - armoryText.width/2;
+        armoryText.y = 90;
+
+        var starImg = new Sprite(16,16);
+        starImg.image = game.assets['www/picture/star.png'];
+        starImg.x = starText.x  -20;
+        starImg.y = starText.y;
+
+        var laserImg = new Sprite(8,16);
+        laserImg.image = game.assets['www/picture/laser.png'];
+        laserImg.x = laserText.x  -20;
+        laserImg.y = laserText.y;
+
+        var roundShootImg = new Sprite(12,12);
+        roundShootImg.image = game.assets['www/picture/roundShoot.png'];
+        roundShootImg.x = roundShootText.x - 20;
+        roundShootImg.y = roundShootText.y;
+
+
+        this.addChild(laserImg);
+        this.addChild(laserText);
+        this.addChild(starImg);
+        this.addChild(starText);
+        this.addChild(armoryText);
+        this.addChild(roundShootImg);
+        this.addChild(roundShootText);
+        this.addChild(shipImg);
+        this.addChild(moveText);
+        this.addEventListener('enterframe', function () {
+            if(game.input.a){
+                game.popScene();
             }
         });
     }
