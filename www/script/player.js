@@ -67,8 +67,6 @@ var Player = enchant.Class.create(enchant.Sprite, {
                 this.fire();
                 this.update();
             }
-
-            //if(Game.instance.soundTurn == true) game.bgrndSound.play();
         });
     },
 

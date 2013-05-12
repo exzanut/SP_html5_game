@@ -149,7 +149,7 @@ var SceneGame = Class.create(enchant.Scene, {
 
         game.apLabel = new TextLabel(8, 8, "ARMORY POINT:");
         game.scoreLabel = new TextLabel(8, 22, "SCORE:");
-        game.armoryPoint=0;
+        game.armoryPoint=200;
 
 
         var barHP = new Bar(Game.instance.width - (20), Game.instance.height/2 - (50));
@@ -188,6 +188,18 @@ var SceneGame = Class.create(enchant.Scene, {
             }
 
         });
+
+        this.addEventListener('touchmove', function (e) {
+            this.holdKeys(e);
+        });
+        this.addEventListener('touchstart', function (e) {
+            this.holdKeys(e);
+        });
+        this.addEventListener('touchend', function (e) {
+            this.releaseKeys();
+        });
+
+
         this.addChild(bgImg);
         this.addChild(bgImg2);
         this.addChild(player);
@@ -201,7 +213,45 @@ var SceneGame = Class.create(enchant.Scene, {
         this.addChild(game.apLabel);
         this.addChild(game.bgrndSound);
 
+    },
+    releaseKeys: function() {
+        if(Game.instance.playerShip.aLive == true) {
+                Game.instance.input.up = false;
+                Game.instance.input.down = false;
+                Game.instance.input.right = false;
+                Game.instance.input.left = false;
+        }
+    },
+    holdKeys: function(e) {
+        var ship = Game.instance.playerShip;
+        if(ship.aLive == true) {
+                if(e.x>ship.x+ship.width/2){
+                    Game.instance.input.right=true;
+                    Game.instance.input.left=false;
+                }
+                if(e.x<ship.x+ship.width/2){
+                    Game.instance.input.left=true;
+                    Game.instance.input.right=false;
+                }
+                if(e.y>ship.y+ship.height/2){
+                    Game.instance.input.down=true;
+                    Game.instance.input.up=false;
+                }
+                if(e.y<ship.y+ship.height/2){
+                    Game.instance.input.up=true;
+                    Game.instance.input.down=false;
+                }
+                if(Math.abs(e.x - ship.x+ship.width/2)<15){
+                    Game.instance.input.right = false;
+                    Game.instance.input.left = false;
+                }
+                if(Math.abs(e.y - ship.y+ship.height/2)<15){
+                    Game.instance.input.up=false;
+                    Game.instance.input.down=false;
+                }              
+        }
     }
+
 });
 
 var SceneArmory = Class.create(enchant.Scene, {
