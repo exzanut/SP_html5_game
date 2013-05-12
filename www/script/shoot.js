@@ -32,7 +32,7 @@ var EnemyShoot = enchant.Class.create(Shoot, {
     initialize: function (x, y,direction) {
         Shoot.call(this, x, y,direction);
         this.moveSpeed = 10;
-        this.damage=1;
+        this.damage = 1 + Game.instance.scGame.age/4000;
 
        this.addEventListener('enterframe', function () {
             if(Game.instance.playerShip.intersect(this)) {
@@ -57,7 +57,7 @@ var RoundEnShoot = enchant.Class.create(EnemyShoot, {
         this.moveSpeed = 9;
         this.image = Game.instance.assets['www/picture/roundShoot.png'];
         this.frame = 0;
-        this.damage=1;
+        this.damage*=1;
     }
 });
 
@@ -98,7 +98,7 @@ var LaserEnShoot = enchant.Class.create(EnemyShoot, {
         this.width=8;
         this.height=16;
         this.frame = 0;
-        this.damage=2;
+        this.damage*=2;
     }
 });
 
