@@ -67,8 +67,6 @@ var Player = enchant.Class.create(enchant.Sprite, {
                 this.fire();
                 this.update();
             }
-
-            if(Game.instance.soundTurn == true) game.bgrndSound.play();
         });
     },
 
@@ -322,6 +320,9 @@ var Player = enchant.Class.create(enchant.Sprite, {
                     //Game.instance.playerShip = null;
                     Game.instance.scGame.removeChild(this);
                     delete this;
+                    if(Game.instance.soundTurn == true) {
+                        Game.instance.bgrndSound.groupSound.childNodes[Game.instance.bgrndSound.selectedIndex].stop();
+                    }
                     Game.instance.pushScene(new SceneGameOver());
                 }
             }
