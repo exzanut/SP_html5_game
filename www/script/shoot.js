@@ -32,7 +32,7 @@ var EnemyShoot = enchant.Class.create(Shoot, {
     initialize: function (x, y,direction) {
         Shoot.call(this, x, y,direction);
         this.moveSpeed = 10;
-        this.damage = 1 + Game.instance.scGame.age/6000;
+        this.damage = 1 + Game.instance.scGame.age/8000;
 
        this.addEventListener('enterframe', function () {
             if(Game.instance.playerShip.intersect(this)) {

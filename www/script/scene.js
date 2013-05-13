@@ -128,11 +128,12 @@ var SceneMenu = Class.create(enchant.Scene, {
         game.scMenu.buttons.childNodes[0].text = "RESUME";
         game.scMenu.buttons.childNodes[0].x = game.width/2-game.scMenu.buttons.childNodes[0].width/2;
         game.scMenu.buttons.childNodes[0].resume=true;
-        game.scGame = new SceneGame();
         game.scArmory = new SceneArmory();
+        game.scGame = new SceneGame();
         game.score = 0;
         game.playerShip.aLive = true;
         game.pushScene(game.scGame);
+        game.pushScene(game.scArmory);
     }
 });
 
@@ -148,12 +149,16 @@ var SceneGame = Class.create(enchant.Scene, {
         bgImg2.y=-Game.instance.height;
 
         var game = Game.instance;
+        this.escCD=20;
 
         game.apLabel = new TextLabel(8, 8, "ARMORY POINT:");
         game.scoreLabel = new TextLabel(8, 22, "SCORE:");
         game.armoryPoint=500;
 
-
+        this.touch = false;
+        this.touchX = 0;
+        this.touchY = 0;
+        
         var barHP = new Bar(Game.instance.width - (20), Game.instance.height/2 - (50));
         var hpFrag = new BarFragment(Game.instance.width - (20)+1, 1);
         hpFrag.backgroundColor = 'darkred';
@@ -170,9 +175,11 @@ var SceneGame = Class.create(enchant.Scene, {
         game.playerShip = player;
 
         this.addEventListener('enterframe', function () {
-            if(game.input.a){
+            if(this.escCD>0)this.escCD--;
+            if(game.input.a && this.escCD == 0){
                 game.pushScene(game.scMenu);
-                game.bgrndSound.groupSound.childNodes[game.bgrndSound.selectedIndex].stop();;
+                game.bgrndSound.groupSound.childNodes[game.bgrndSound.selectedIndex].stop();
+                this.releaseKeys();
             }
 
             hpFrag.height = ((game.height-2)/game.shipUpgrade.hull_maxDmgCap)*player.hull.actDmg;
@@ -189,17 +196,26 @@ var SceneGame = Class.create(enchant.Scene, {
 
             }
 
+            if(this.touch){
+               this.holdKeys(this.touchX,this.touchY);
+            }
+
         });
 
-        this.addEventListener('touchmove', function (e) {
-            this.holdKeys(e);
-        });
         this.addEventListener('touchstart', function (e) {
-            this.holdKeys(e);
+            this.touchX = e.x;
+            this.touchY = e.y;
+            this.touch = true;
+        });
+        this.addEventListener('touchmove', function (e) {
+            this.touchX = e.x;
+            this.touchY = e.y;
         });
         this.addEventListener('touchend', function (e) {
             this.releaseKeys();
+            this.touch = false;
         });
+
 
 
         this.addChild(bgImg);
@@ -217,37 +233,35 @@ var SceneGame = Class.create(enchant.Scene, {
 
     },
     releaseKeys: function() {
-        if(Game.instance.playerShip.aLive == true) {
-                Game.instance.input.up = false;
-                Game.instance.input.down = false;
-                Game.instance.input.right = false;
-                Game.instance.input.left = false;
-        }
+        Game.instance.input.up = false;
+        Game.instance.input.down = false;
+        Game.instance.input.right = false;
+        Game.instance.input.left = false;
     },
-    holdKeys: function(e) {
+    holdKeys: function(x,y) {
         var ship = Game.instance.playerShip;
         if(ship.aLive == true) {
-                if(e.x>ship.x+ship.width/2){
+                if(x-ship.x-45/2>30){
                     Game.instance.input.right=true;
                     Game.instance.input.left=false;
                 }
-                if(e.x<ship.x+ship.width/2){
+                if(x-ship.x-45/2<-30){
                     Game.instance.input.left=true;
                     Game.instance.input.right=false;
                 }
-                if(e.y>ship.y+ship.height/2){
+                if(y-ship.y-ship.height/2>25){
                     Game.instance.input.down=true;
                     Game.instance.input.up=false;
                 }
-                if(e.y<ship.y+ship.height/2){
+                if(y-ship.y-ship.height/2<-25){
                     Game.instance.input.up=true;
                     Game.instance.input.down=false;
                 }
-                if(Math.abs(e.x - ship.x+ship.width/2)<15){
+                if(Math.abs(x - ship.x-45/2)<35){
                     Game.instance.input.right = false;
                     Game.instance.input.left = false;
                 }
-                if(Math.abs(e.y - ship.y+ship.height/2)<15){
+                if(Math.abs(y - ship.y-ship.height/2)<25){
                     Game.instance.input.up=false;
                     Game.instance.input.down=false;
                 }              
@@ -1031,6 +1045,7 @@ var SceneGameOver = Class.create(enchant.Scene, {
         this.addChild(finalScore);
         this.addEventListener('enterframe', function () {
             if(game.input.a){
+                game.scGame.releaseKeys();
                 game.popScene();
                 game.popScene();
                 game.onload();
@@ -1074,9 +1089,14 @@ var SceneGuide = Class.create(enchant.Scene, {
         starText.y = 50;
 
         var armoryText = new MutableText(5,5);
-        armoryText.text = "AP CAN BE SPENT IN ARMORY TO BUY UPGRADES";
+        armoryText.text = "AP CAN BE SPENT IN ARMORY";
         armoryText.x = game.width/2 - armoryText.width/2;
         armoryText.y = 90;
+
+        var armoryText2 = new MutableText(5,5);
+        armoryText2.text = "TO BUY UPGRADES";
+        armoryText2.x = game.width/2 - armoryText2.width/2;
+        armoryText2.y = 110;
 
         var starImg = new Sprite(16,16);
         starImg.image = game.assets['www/picture/star.png'];
@@ -1099,6 +1119,7 @@ var SceneGuide = Class.create(enchant.Scene, {
         this.addChild(starImg);
         this.addChild(starText);
         this.addChild(armoryText);
+        this.addChild(armoryText2);
         this.addChild(roundShootImg);
         this.addChild(roundShootText);
         this.addChild(shipImg);
