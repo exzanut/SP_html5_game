@@ -111,7 +111,7 @@ var Enemy = enchant.Class.create(enchant.Sprite, {
         enchant.Sprite.call(this, w, h);
         this.x = x;
         this.y = y;
-        this.HP = Math.pow((1 + Game.instance.scGame.age/2000),2);
+        this.HP = Math.pow((1 + Game.instance.scGame.age/5000),2);
         this.score = Math.floor(this.HP*10);
         this.moveArray=new Array(); //[age,angle,speed]
         this.testRemove();
