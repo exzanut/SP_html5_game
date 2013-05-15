@@ -368,7 +368,7 @@ var SceneArmory = Class.create(enchant.Scene, {
         imgShipDmgRedMinus.x = 8+14;
         imgShipDmgRedMinus.y = 14*6;
 
-        var imgShipDmgAbs = new TextLabel(8+14+14+8,14*7, "DAMAGE ABSORPTION:");
+        var imgShipDmgAbs = new TextLabel(8+14+14+8,14*7, "SHIELD ABSORPTION:");
         imgShipDmgAbs.score = game.shipUpgrade.shield_dmgAbsortion;
 
         var imgShipDmgAbsPlus = new Sprite(game.assets['www/picture/lblPlus.png'].width, game.assets['www/picture/lblPlus.png'].height);
@@ -598,8 +598,8 @@ var SceneArmory = Class.create(enchant.Scene, {
             imgRepair.score = game.playerShip.hull.actDmg;
             imgRepair.addEventListener('touchend', function(){
                 if(game.playerShip.hull.actDmg + 1 <= game.shipUpgrade.hull_maxDmgCap){
-                    if(repairCounter*game.shipUpgrade.costAP <= game.armoryPoint){
-                        game.armoryPoint -= repairCounter*game.shipUpgrade.costAP;
+                    if(repairCounter*game.shipUpgrade.costAP/10 <= game.armoryPoint){
+                        game.armoryPoint -= repairCounter*game.shipUpgrade.costAP/10;
                         game.playerShip.hull.actDmg++;
                         repairCounter++;
                     }
@@ -643,26 +643,26 @@ var SceneArmory = Class.create(enchant.Scene, {
 
         imgShipDmgRedPlus.addEventListener('touchend', function () {
             if(game.shipUpgrade.hull_dmgReduction < 99){
-                if(Math.pow((game.shipUpgrade.hull_dmgReduction - game.shipUpgradeDefault.hull_dmgReduction + 1), 2)*game.shipUpgrade.costAP <= game.armoryPoint){
-                    game.armoryPoint -= Math.pow((game.shipUpgrade.hull_dmgReduction - game.shipUpgradeDefault.hull_dmgReduction + 1), 2)*game.shipUpgrade.costAP;
+                if(Math.pow(((game.shipUpgrade.hull_dmgReduction - game.shipUpgradeDefault.hull_dmgReduction)/5)+1, 2)*game.shipUpgrade.costAP <= game.armoryPoint){
+                    game.armoryPoint -= Math.pow(((game.shipUpgrade.hull_dmgReduction - game.shipUpgradeDefault.hull_dmgReduction)/5)+1, 2)*game.shipUpgrade.costAP;
                     //imgShipDmgRed.score++;
-                    game.shipUpgrade.hull_dmgReduction++;
+                    game.shipUpgrade.hull_dmgReduction+=5;
                 }
             }
         });
 
         imgShipDmgRedMinus.addEventListener('touchend', function () {
             if(game.shipUpgradeDefault.hull_dmgReduction < game.shipUpgrade.hull_dmgReduction){
-                game.armoryPoint += Math.pow((game.shipUpgrade.hull_dmgReduction - game.shipUpgradeDefault.hull_dmgReduction), 2)*game.shipUpgrade.costAP;
+                game.armoryPoint += Math.pow(((game.shipUpgrade.hull_dmgReduction - game.shipUpgradeDefault.hull_dmgReduction)/5), 2)*game.shipUpgrade.costAP;
                 //imgShipDmgRed.score--;
-                game.shipUpgrade.hull_dmgReduction--;
+                game.shipUpgrade.hull_dmgReduction-=5;
             }
         });
 
         imgShipDmgAbsPlus.addEventListener('touchend', function () {
             if(game.shipUpgrade.shield_dmgAbsortion < 99){
-                if(Math.pow((game.shipUpgrade.shield_dmgAbsortion - game.shipUpgradeDefault.shield_dmgAbsortion + 1), 2)*game.shipUpgrade.costAP <= game.armoryPoint){
-                    game.armoryPoint -= Math.pow((game.shipUpgrade.shield_dmgAbsortion - game.shipUpgradeDefault.shield_dmgAbsortion + 1), 2)*game.shipUpgrade.costAP;
+                if(Math.pow((game.shipUpgrade.shield_dmgAbsortion - game.shipUpgradeDefault.shield_dmgAbsortion + 1), 2)*game.shipUpgrade.costAPNext <= game.armoryPoint){
+                    game.armoryPoint -= Math.pow((game.shipUpgrade.shield_dmgAbsortion - game.shipUpgradeDefault.shield_dmgAbsortion + 1), 2)*game.shipUpgrade.costAPNext;
                     //imgShipDmgAbs.score++;
                     game.shipUpgrade.shield_dmgAbsortion++;
                 }
@@ -671,7 +671,7 @@ var SceneArmory = Class.create(enchant.Scene, {
 
         imgShipDmgAbsMinus.addEventListener('touchend', function () {
             if(game.shipUpgradeDefault.shield_dmgAbsortion < game.shipUpgrade.shield_dmgAbsortion){
-                game.armoryPoint += Math.pow((game.shipUpgrade.shield_dmgAbsortion - game.shipUpgradeDefault.shield_dmgAbsortion), 2)*game.shipUpgrade.costAP;
+                game.armoryPoint += Math.pow((game.shipUpgrade.shield_dmgAbsortion - game.shipUpgradeDefault.shield_dmgAbsortion), 2)*game.shipUpgrade.costAPNext;
                 //imgShipDmgAbs.score--;
                 game.shipUpgrade.shield_dmgAbsortion--;
             }
@@ -695,19 +695,19 @@ var SceneArmory = Class.create(enchant.Scene, {
 
         imgShipEnergyConsumPlus.addEventListener('touchend', function () {
             if(game.shipUpgrade.shield_energyConsumption < 99){
-                if(Math.pow((game.shipUpgrade.shield_energyConsumption - game.shipUpgradeDefault.shield_energyConsumption + 1), 2)*game.shipUpgrade.costAP <= game.armoryPoint){
-                    game.armoryPoint -= Math.pow((game.shipUpgrade.shield_energyConsumption - game.shipUpgradeDefault.shield_energyConsumption + 1), 2)*game.shipUpgrade.costAP;
+                if(Math.pow(((game.shipUpgrade.shield_energyConsumption - game.shipUpgradeDefault.shield_energyConsumption)/5)+1, 2)*game.shipUpgrade.costAP <= game.armoryPoint){
+                    game.armoryPoint -= Math.pow(((game.shipUpgrade.shield_energyConsumption - game.shipUpgradeDefault.shield_energyConsumption)/5)+1, 2)*game.shipUpgrade.costAP;
                     //imgShipEnergyConsum.score++;
-                    game.shipUpgrade.shield_energyConsumption++;
+                    game.shipUpgrade.shield_energyConsumption+=5;
                 }
             }
         });
 
         imgShipEnergyConsumMinus.addEventListener('touchend', function () {
             if(game.shipUpgradeDefault.shield_energyConsumption < game.shipUpgrade.shield_energyConsumption){
-                game.armoryPoint += Math.pow((game.shipUpgrade.shield_energyConsumption - game.shipUpgradeDefault.shield_energyConsumption), 2)*game.shipUpgrade.costAP;
+                game.armoryPoint += Math.pow(((game.shipUpgrade.shield_energyConsumption - game.shipUpgradeDefault.shield_energyConsumption)/5), 2)*game.shipUpgrade.costAP;
                 //imgShipEnergyConsum.score--;
-                game.shipUpgrade.shield_energyConsumption--;
+                game.shipUpgrade.shield_energyConsumption-=5;
             }
         });
 
@@ -733,8 +733,8 @@ var SceneArmory = Class.create(enchant.Scene, {
         //base shoot listener
         {
         imgBaseDamagePlus.addEventListener('touchend', function () {
-            if(Math.pow((game.shipUpgrade.baseS_damage - game.shipUpgradeDefault.baseS_damage + 1), 2)*game.shipUpgrade.costAPNext*game.shipUpgrade.baseS_projectiles <= game.armoryPoint){
-                game.armoryPoint -= Math.pow((game.shipUpgrade.baseS_damage - game.shipUpgradeDefault.baseS_damage + 1), 2)*game.shipUpgrade.costAPNext*game.shipUpgrade.baseS_projectiles;
+            if(Math.pow((game.shipUpgrade.baseS_damage - game.shipUpgradeDefault.baseS_damage + 1), 2)*game.shipUpgrade.costAP*game.shipUpgrade.baseS_projectiles <= game.armoryPoint){
+                game.armoryPoint -= Math.pow((game.shipUpgrade.baseS_damage - game.shipUpgradeDefault.baseS_damage + 1), 2)*game.shipUpgrade.costAP*game.shipUpgrade.baseS_projectiles;
                 //imgBaseDamage.score++;
                 game.shipUpgrade.baseS_damage++;
             }
@@ -744,7 +744,7 @@ var SceneArmory = Class.create(enchant.Scene, {
             if(game.shipUpgradeDefault.baseS_damage < game.shipUpgrade.baseS_damage){
                 //if(Math.pow((game.shipUpgrade.baseS_damage - game.shipUpgradeDefault.baseS_damage + 1), 2)*game.shipUpgrade.costAPNext*game.shipUpgrade.baseS_projectiles <= game.armoryPoint)
                 {
-                    game.armoryPoint += Math.pow((game.shipUpgrade.baseS_damage - game.shipUpgradeDefault.baseS_damage), 2)*game.shipUpgrade.costAPNext*game.shipUpgrade.baseS_projectiles;
+                    game.armoryPoint += Math.pow((game.shipUpgrade.baseS_damage - game.shipUpgradeDefault.baseS_damage), 2)*game.shipUpgrade.costAP*game.shipUpgrade.baseS_projectiles;
                     //imgBaseDamage.score--;
                     game.shipUpgrade.baseS_damage--;
                 }
@@ -752,8 +752,8 @@ var SceneArmory = Class.create(enchant.Scene, {
         });
 
         imgBaseProjectilePlus.addEventListener('touchend', function () {
-            if(Math.pow((game.shipUpgrade.baseS_projectiles - game.shipUpgradeDefault.baseS_projectiles + 1), 2)*game.shipUpgrade.costAPNext*game.shipUpgrade.baseS_damage <= game.armoryPoint){
-                game.armoryPoint -= Math.pow((game.shipUpgrade.baseS_projectiles - game.shipUpgradeDefault.baseS_projectiles + 1), 2)*game.shipUpgrade.costAPNext*game.shipUpgrade.baseS_damage;
+            if(Math.pow((game.shipUpgrade.baseS_projectiles - game.shipUpgradeDefault.baseS_projectiles + 1), 2)*game.shipUpgrade.costAP*game.shipUpgrade.baseS_damage <= game.armoryPoint){
+                game.armoryPoint -= Math.pow((game.shipUpgrade.baseS_projectiles - game.shipUpgradeDefault.baseS_projectiles + 1), 2)*game.shipUpgrade.costAP*game.shipUpgrade.baseS_damage;
                 //imgBaseProjectile.score++;
                 game.shipUpgrade.baseS_projectiles++;
             }
@@ -761,7 +761,7 @@ var SceneArmory = Class.create(enchant.Scene, {
 
         imgBaseProjectileMinus.addEventListener('touchend', function () {
             if(game.shipUpgradeDefault.baseS_projectiles < game.shipUpgrade.baseS_projectiles){
-                game.armoryPoint += Math.pow((game.shipUpgrade.baseS_projectiles - game.shipUpgradeDefault.baseS_projectiles), 2)*game.shipUpgrade.costAPNext*game.shipUpgrade.baseS_damage;
+                game.armoryPoint += Math.pow((game.shipUpgrade.baseS_projectiles - game.shipUpgradeDefault.baseS_projectiles), 2)*game.shipUpgrade.costAP*game.shipUpgrade.baseS_damage;
                 //imgBaseProjectile.score--;
                 game.shipUpgrade.baseS_projectiles--;
             }
@@ -807,8 +807,8 @@ var SceneArmory = Class.create(enchant.Scene, {
         //rocket shoot listener
         {
         imgRocketDamagePlus.addEventListener('touchend', function () {
-            if(Math.pow((game.shipUpgrade.rocketS_damage - game.shipUpgradeDefault.rocketS_damage + 5), 2)*game.shipUpgrade.costAP <= game.armoryPoint){
-                game.armoryPoint -= Math.pow((game.shipUpgrade.rocketS_damage - game.shipUpgradeDefault.rocketS_damage + 5), 2)*game.shipUpgrade.costAP;
+            if(Math.pow(((game.shipUpgrade.rocketS_damage - game.shipUpgradeDefault.rocketS_damage)/5)+1, 2)*game.shipUpgrade.costAP <= game.armoryPoint){
+                game.armoryPoint -= Math.pow(((game.shipUpgrade.rocketS_damage - game.shipUpgradeDefault.rocketS_damage)/5)+1, 2)*game.shipUpgrade.costAP;
                 //imgRocketDamage.score++;
                 game.shipUpgrade.rocketS_damage += 5;
             }
@@ -816,7 +816,7 @@ var SceneArmory = Class.create(enchant.Scene, {
 
         imgRocketDamageMinus.addEventListener('touchend', function () {
             if(game.shipUpgradeDefault.rocketS_damage < game.shipUpgrade.rocketS_damage){
-                game.armoryPoint += Math.pow((game.shipUpgrade.rocketS_damage - game.shipUpgradeDefault.rocketS_damage), 2)*game.shipUpgrade.costAP;
+                game.armoryPoint += Math.pow(((game.shipUpgrade.rocketS_damage - game.shipUpgradeDefault.rocketS_damage)/5), 2)*game.shipUpgrade.costAP;
                 //imgRocketDamage.score--;
                 game.shipUpgrade.rocketS_damage -= 5;
             }
@@ -840,7 +840,7 @@ var SceneArmory = Class.create(enchant.Scene, {
 
         imgRocketCooldownPlus.addEventListener('touchend', function () {
             if(game.shipUpgradeDefault.rocketS_cooldown > game.shipUpgrade.rocketS_cooldown){
-                game.armoryPoint += Math.pow((game.shipUpgradeDefault.rocketS_cooldown - game.shipUpgrade.rocketS_cooldown), 2)*game.shipUpgrade.costAP;
+                game.armoryPoint += Math.pow(((game.shipUpgradeDefault.rocketS_cooldown - game.shipUpgrade.rocketS_cooldown)/5), 2)*game.shipUpgrade.costAP;
                 //imgRocketCooldown.score++;
                 game.shipUpgrade.rocketS_cooldown += 5;
             }
@@ -848,8 +848,8 @@ var SceneArmory = Class.create(enchant.Scene, {
 
         imgRocketCooldownMinus.addEventListener('touchend', function () {
             if(game.shipUpgrade.rocketS_cooldown > 2){
-                if(Math.pow((game.shipUpgradeDefault.rocketS_cooldown - game.shipUpgrade.rocketS_cooldown + 5), 2)*game.shipUpgrade.costAP <= game.armoryPoint){
-                    game.armoryPoint -= Math.pow((game.shipUpgradeDefault.rocketS_cooldown - game.shipUpgrade.rocketS_cooldown + 5), 2)*game.shipUpgrade.costAP;
+                if(Math.pow(((game.shipUpgradeDefault.rocketS_cooldown - game.shipUpgrade.rocketS_cooldown)/5)+1, 2)*game.shipUpgrade.costAP <= game.armoryPoint){
+                    game.armoryPoint -= Math.pow(((game.shipUpgradeDefault.rocketS_cooldown - game.shipUpgrade.rocketS_cooldown)/5)+1, 2)*game.shipUpgrade.costAP;
                     //imgRocketCooldown.score--;
                     game.shipUpgrade.rocketS_cooldown -= 5;
                 }
