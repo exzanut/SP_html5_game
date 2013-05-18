@@ -159,11 +159,18 @@ var SceneGame = Class.create(enchant.Scene, {
         this.touchX = 0;
         this.touchY = 0;
         
-        var barHP = new Bar(Game.instance.width - (20), Game.instance.height/2 - (50));
+        var backText = new MutableText(8, 8);
+            backText.text = "BACK";
+            backText.x = game.width - backText.width-2;
+            backText.addEventListener('touchstart',function(){
+                game.input.a = true;
+        });
+
+        var barHP = new Bar(Game.instance.width - (20), (Game.instance.height)/2 - (50)+15);
         var hpFrag = new BarFragment(Game.instance.width - (20)+1, 1);
         hpFrag.backgroundColor = 'darkred';
 
-        var barMP = new Bar(Game.instance.width - (20+20), Game.instance.height/2 - (50));
+        var barMP = new Bar(Game.instance.width - (20+20), (Game.instance.height)/2 - (50)+15);
         var mpFrag = new BarFragment(Game.instance.width - (20+20)+1, 1);
         mpFrag.backgroundColor = 'orange';
 
@@ -177,15 +184,16 @@ var SceneGame = Class.create(enchant.Scene, {
         this.addEventListener('enterframe', function () {
             if(this.escCD>0)this.escCD--;
             if(game.input.a && this.escCD == 0){
+                game.input.a = false;
                 game.pushScene(game.scMenu);
                 game.bgrndSound.groupSound.childNodes[game.bgrndSound.selectedIndex].stop();
                 this.releaseKeys();
             }
 
-            hpFrag.height = ((game.height-2)/game.shipUpgrade.hull_maxDmgCap)*player.hull.actDmg;
+            hpFrag.height = ((game.height-30-2)/game.shipUpgrade.hull_maxDmgCap)*player.hull.actDmg;
             hpFrag.y = game.height-hpFrag.height-1;
 
-            mpFrag.height = ((game.height-2)/game.shipUpgrade.generator_maxEnergyCap)*player.generator.actEnergy;
+            mpFrag.height = ((game.height-30-2)/game.shipUpgrade.generator_maxEnergyCap)*player.generator.actEnergy;
             mpFrag.y = game.height-mpFrag.height-1;
 
             bgImg.y+=1;
@@ -229,6 +237,7 @@ var SceneGame = Class.create(enchant.Scene, {
         this.addChild(mpFrag);
         this.addChild(game.scoreLabel);
         this.addChild(game.apLabel);
+        this.addChild(backText);
         this.addChild(game.bgrndSound);
 
     },
@@ -319,6 +328,7 @@ var SceneArmory = Class.create(enchant.Scene, {
             Game.instance.playerShip.shield.energyConsumption = game.shipUpgrade.shield_energyConsumption;
 
             if(game.input.a){
+                game.input.a = false;
                 game.popScene();
             }
         });
@@ -590,6 +600,12 @@ var SceneArmory = Class.create(enchant.Scene, {
         imgCoverCooldownMinus.image = game.assets['www/picture/lblMinus.png'];
         imgCoverCooldownMinus.x = 8+14;
         imgCoverCooldownMinus.y = 14*28;
+
+            var imgBack = new MutableText(game.width-80, 14*30);
+            imgBack.text = "BACK";
+            imgBack.addEventListener('touchstart',function(){
+                game.input.a = true;
+            });
 
             var imgRepair = new TextLabel(8, 14*30, "REPAIR:");
             imgRepair.score = (1/game.shipUpgrade.hull_maxDmgCap)*game.playerShip.hull.actDmg*100;
@@ -944,6 +960,7 @@ var SceneArmory = Class.create(enchant.Scene, {
 
         this.addChild(imgArmory);
         this.addChild(imgRepair);
+        this.addChild(imgBack);
 
         this.addChild(imgShip);
         this.addChild(imgShipHealth);
@@ -1043,8 +1060,14 @@ var SceneGameOver = Class.create(enchant.Scene, {
 
         this.addChild(gameOverImg);
         this.addChild(finalScore);
+
+        this.addEventListener('touchstart',function(){
+            game.input.a = true;
+        });
+
         this.addEventListener('enterframe', function () {
             if(game.input.a){
+                game.input.a = false;
                 game.scGame.releaseKeys();
                 game.popScene();
                 game.popScene();
@@ -1072,6 +1095,13 @@ var SceneGuide = Class.create(enchant.Scene, {
         moveText.text = "MOVE WITH ARROW KEYS OR BY TOUCH";
         moveText.x = game.width/2 - moveText.width/2;
         moveText.y = shipImg.y + 50;
+
+        var backText = new MutableText(0, moveText.y+50);
+            backText.text = "BACK";
+            backText.x = game.width/2 - backText.width/2;
+            backText.addEventListener('touchstart',function(){
+                game.input.a = true;
+            });
 
         var roundShootText = new MutableText(5,5);
         roundShootText.text = "BASIC ENEMY SHOT";
@@ -1124,8 +1154,10 @@ var SceneGuide = Class.create(enchant.Scene, {
         this.addChild(roundShootText);
         this.addChild(shipImg);
         this.addChild(moveText);
+        this.addChild(backText);
         this.addEventListener('enterframe', function () {
             if(game.input.a){
+                game.input.a = false;
                 game.popScene();
             }
         });
@@ -1139,7 +1171,7 @@ var Bar = enchant.Class.create(enchant.Sprite, {
         this.image = game.assets['www/picture/bar.png'];
         this.x = x;
         this.y = y;
-        this.scaleY = game.height/this.height;
+        this.scaleY = (game.height-30)/this.height;
 
         this.addEventListener('enterframe', function (e) {
         });
