@@ -26,9 +26,6 @@ var SceneMenu = Class.create(enchant.Scene, {
         imgPlay.addEventListener('touchend', function () {
             if(game.scMenu.buttons.childNodes[0].resume==false){
                 game.scMenu.setNewGame();
-                if(Game.instance.soundTurn == true) {
-                    game.bgrndSound.groupSound.childNodes[game.bgrndSound.selectedIndex].play();  
-                }
             }else{
                 game.popScene();
                 if(Game.instance.soundTurn == true) {
@@ -183,6 +180,10 @@ var SceneGame = Class.create(enchant.Scene, {
 
         this.addEventListener('enterframe', function () {
             if(this.escCD>0)this.escCD--;
+            if(this.escCD>18 && Game.instance.soundTurn == true) {
+                game.bgrndSound.groupSound.childNodes[game.bgrndSound.selectedIndex].play();  
+            }
+
             if(game.input.a && this.escCD == 0){
                 game.input.a = false;
                 game.pushScene(game.scMenu);
