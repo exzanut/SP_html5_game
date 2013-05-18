@@ -146,7 +146,7 @@ var Enemy = enchant.Class.create(enchant.Sprite, {
 
     move: function () {
         this.x += this.moveSpeed * Math.cos(this.direction / 180 * Math.PI);
-        this.y -= this.moveSpeed * Math.sin(this.direction / 180 * Math.PI)
+        this.y -= this.moveSpeed * Math.sin(this.direction / 180 * Math.PI);
 
     },
     shoot: function () {
