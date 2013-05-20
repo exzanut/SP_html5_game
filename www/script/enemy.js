@@ -157,8 +157,10 @@ var Enemy = enchant.Class.create(enchant.Sprite, {
     getDmg: function (dmg) {
       if(dmg=="kill"){
         dmg=this.HP;
-        var sound = Game.instance.assets['www/sound/shipExplosion.wav'];
-        sound.clone().play();
+        if(Game.instance.soundTurn == true){
+          var sound = Game.instance.assets['www/sound/shipExplosion.wav'];
+          sound.clone().play();
+        }
       }
       this.HP-=dmg;
       if(this.HP<1){
@@ -235,8 +237,10 @@ var Enemy3 = enchant.Class.create(Enemy, {
   getDmg: function (dmg) {
     if(dmg=="kill"){
         dmg=this.HP;
-        var sound = Game.instance.assets['www/sound/shipExplosion.wav'];
-        sound.clone().play();
+        if(Game.instance.soundTurn == true){
+          var sound = Game.instance.assets['www/sound/shipExplosion.wav'];
+          sound.clone().play();
+        }
       }
      this.HP-=dmg;
       if(this.HP<1){
