@@ -126,6 +126,7 @@ var SceneMenu = Class.create(enchant.Scene, {
         game.scMenu.buttons.childNodes[0].x = game.width/2-game.scMenu.buttons.childNodes[0].width/2;
         game.scMenu.buttons.childNodes[0].resume=true;
         game.scArmory = new SceneArmory();
+        game.scArmory.imgBack.text = "START";
         game.scGame = new SceneGame();
         game.score = 0;
         game.playerShip.aLive = true;
@@ -602,11 +603,12 @@ var SceneArmory = Class.create(enchant.Scene, {
         imgCoverCooldownMinus.x = 8+14;
         imgCoverCooldownMinus.y = 14*28;
 
-            var imgBack = new MutableText(game.width-80, 14*30);
-            imgBack.text = "BACK";
+            var imgBack = new MutableText(game.width-100, 14*30);
             imgBack.addEventListener('touchstart',function(){
                 game.input.a = true;
+                imgBack.text = "BACK";
             });
+            this.imgBack = imgBack;
 
             var imgRepair = new TextLabel(8, 14*30, "REPAIR:");
             imgRepair.score = (1/game.shipUpgrade.hull_maxDmgCap)*game.playerShip.hull.actDmg*100;
